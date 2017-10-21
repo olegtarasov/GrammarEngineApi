@@ -36,6 +36,7 @@ namespace GrammarEngineApi
         MEASURE_UNIT = 28, // class ЕДИНИЦА_ИЗМЕРЕНИЯ
         COMPOUND_ADJ_PREFIX = 29, // class ПРЕФИКС_СОСТАВ_ПРИЛ
         COMPOUND_NOUN_PREFIX = 30, // class ПРЕФИКС_СОСТАВ_СУЩ
+        UNKNOWN_ENTRIES_CLASS = 85 // class UnknownEntries
     }
 
     public enum Enums

@@ -29,6 +29,17 @@ namespace GrammarEngineApi
             }
         }
 
+        private Entry _entry;
+        public Entry Entry => _entry ?? (_entry = new Entry(_gren, GrammarEngineApi.sol_GetNodeIEntry(_gren.GetEngineHandle(), HNode)));
+
+        private List<CoordPair> _pairs;
+        public IReadOnlyList<CoordPair> Pairs => _pairs ?? (_pairs = GetPairs());
+
+        private string _word;
+        public string Word => _word ?? (_word = GrammarEngineApi.sol_GetNodeContentsFX(HNode));
+
+        public int SourcePosition => GrammarEngineApi.sol_GetNodePosition(HNode);
+
         public bool Contains(CoordPair p)
         {
             return GrammarEngineApi.sol_GetNodeCoordPair(HNode, p.CoordId, p.StateId) == 1;
@@ -49,11 +60,6 @@ namespace GrammarEngineApi
             return GrammarEngineApi.sol_GetNodeCoordState(HNode, CoordID);
         }
 
-        public int GetEntryID()
-        {
-            return GrammarEngineApi.sol_GetNodeIEntry(_gren.GetEngineHandle(), HNode);
-        }
-
         public override int GetHashCode()
         {
             return HNode.GetHashCode();
@@ -65,7 +71,7 @@ namespace GrammarEngineApi
             return GrammarEngineApi.sol_GetLeafLinkType(HNode, LeafIndex);
         }
 
-        public List<CoordPair> GetPairs()
+        private List<CoordPair> GetPairs()
         {
             List<CoordPair> res = new List<CoordPair>();
 
@@ -88,20 +94,9 @@ namespace GrammarEngineApi
             return GrammarEngineApi.sol_GetNodeVerIEntry(_gren.GetEngineHandle(), HNode, version_index);
         }
 
-        public string GetWord()
-        {
-            return GrammarEngineApi.sol_GetNodeContentsFX(HNode);
-        }
-
-
-        public int GetWordPosition()
-        {
-            return GrammarEngineApi.sol_GetNodePosition(HNode);
-        }
-
         public override string ToString()
         {
-            return GetWord();
+            return Word;
         }
 
 

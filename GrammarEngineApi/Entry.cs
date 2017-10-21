@@ -11,6 +11,13 @@
             _entryId = entryId;
         }
 
+        private string _word;
+        public string Word => _word ?? (_word = _engine.GetEntryName(_entryId));
         public WordClassesRu WordClass => (WordClassesRu)_engine.GetEntryClass(_entryId);
+
+        public override string ToString()
+        {
+            return $"{Word} [{WordClass}]";
+        }
     }
 }
