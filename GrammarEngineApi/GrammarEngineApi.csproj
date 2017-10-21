@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Elijah Koziev, Oleg Tarasov</Authors>
+    <Company>Mental Computing</Company>
+    <Product>Russian Grammatical Dictionary and Thesaurus C# API</Product>
+    <Description>An extndend version of the original Russian Grammatical Dictionary and Thesaurus C# API from solarix.ru.</Description>
+    <Copyright>Elijah Koziev, Oleg Tarasov</Copyright>
+    <PackageLicenseUrl>http://solarix.ru/license/purchase_desktop_search_utility.shtml</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/Koziev/GrammarEngine</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/total-world-domination/GrammarEngineApi</RepositoryUrl>
+  </PropertyGroup>
+
+</Project>
