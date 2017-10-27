@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace GrammarEngineApi
 {
@@ -21,9 +22,12 @@ namespace GrammarEngineApi
 
         public string ReadSentence()
         {
-            if (GrammarApi.sol_FetchSentence(_hObject) >= 0)
+            int len;
+            if ((len = GrammarApi.sol_FetchSentence(_hObject)) >= 0)
             {
-                return GrammarApi.sol_GetFetchedSentenceFX(_hObject);
+                var b = new StringBuilder(len + 2);
+                GrammarApi.sol_GetFetchedSentence(_hObject, b);
+                return b.ToString();
             }
             return null;
         }

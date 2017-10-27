@@ -9,9 +9,10 @@ namespace GrammarTest
     {
         static void Main(string[] args)
         {
-            var eng = new GrammarEngine(@"C:\Users\ovtaras4\Downloads\parser-ru-win64\dictionary.xml");
+            var eng = new GrammarEngine(@"C:\Projects\CognitiveFramework\embeddings\grammar\dictionary.xml");
             var lemmatizer = new Lemmatizer(eng);
-            var lemmatized = lemmatizer.LemmatizeSentense("Я взял на дачу пятьсот тридцать пять кило кокса, штуку баксов, 10 обезьянок и впупырдцать уздпячников.");
+            var sentenses = eng.SplitSentenses("Я взял на дачу пятьсот тридцать пять кило кокса, штуку баксов, 10 обезьянок и впупырдцать уздпячников. Превед медвед!");
+            var lemmatized = lemmatizer.LemmatizeSentense(sentenses[0]);
             int cnt = GrammarApi.sol_CountEntries(eng.GetEngineHandle());
         }
     }

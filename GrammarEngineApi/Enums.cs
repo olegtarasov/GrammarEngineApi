@@ -16,182 +16,597 @@ namespace GrammarEngineApi
 
     public enum WordClassesRu
     {
-        NUM_WORD_CLASS = 2, // class num_word
-        NOUN_ru = 6, // class СУЩЕСТВИТЕЛЬНОЕ
-        PRONOUN2_ru = 7, // class МЕСТОИМ_СУЩ
-        PRONOUN_ru = 8, // class МЕСТОИМЕНИЕ
-        ADJ_ru = 9, // class ПРИЛАГАТЕЛЬНОЕ
-        NUMBER_CLASS_ru = 10, // class ЧИСЛИТЕЛЬНОЕ
-        INFINITIVE_ru = 11, // class ИНФИНИТИВ
-        VERB_ru = 12, // class ГЛАГОЛ
-        GERUND_2_ru = 13, // class ДЕЕПРИЧАСТИЕ
-        PREPOS_ru = 14, // class ПРЕДЛОГ
-        IMPERSONAL_VERB_ru = 15, // class БЕЗЛИЧ_ГЛАГОЛ
-        PARTICLE_ru = 18, // class ЧАСТИЦА
-        CONJ_ru = 19, // class СОЮЗ
-        ADVERB_ru = 20, // class НАРЕЧИЕ
-        PUNCTUATION_class = 21, // class ПУНКТУАТОР
-        POSTPOS_ru = 26, // class ПОСЛЕЛОГ
-        POSESS_PARTICLE = 27, // class ПРИТЯЖ_ЧАСТИЦА
-        MEASURE_UNIT = 28, // class ЕДИНИЦА_ИЗМЕРЕНИЯ
-        COMPOUND_ADJ_PREFIX = 29, // class ПРЕФИКС_СОСТАВ_ПРИЛ
-        COMPOUND_NOUN_PREFIX = 30, // class ПРЕФИКС_СОСТАВ_СУЩ
-        UNKNOWN_ENTRIES_CLASS = 85 // class UnknownEntries
+        ///<summary>
+        /// num_word
+        ///</summary>
+        NUM_WORD_CLASS = 2,
+
+        ///<summary>
+        /// СУЩЕСТВИТЕЛЬНОЕ
+        ///</summary>
+        NOUN_ru = 6,
+
+        ///<summary>
+        /// МЕСТОИМ_СУЩ
+        ///</summary>
+        PRONOUN2_ru = 7,
+
+        ///<summary>
+        /// МЕСТОИМЕНИЕ
+        ///</summary>
+        PRONOUN_ru = 8,
+
+        ///<summary>
+        /// ПРИЛАГАТЕЛЬНОЕ
+        ///</summary>
+        ADJ_ru = 9,
+
+        ///<summary>
+        /// ЧИСЛИТЕЛЬНОЕ
+        ///</summary>
+        NUMBER_CLASS_ru = 10,
+
+        ///<summary>
+        /// ИНФИНИТИВ
+        ///</summary>
+        INFINITIVE_ru = 11,
+
+        ///<summary>
+        /// ГЛАГОЛ
+        ///</summary>
+        VERB_ru = 12,
+
+        ///<summary>
+        /// ДЕЕПРИЧАСТИЕ
+        ///</summary>
+        GERUND_2_ru = 13,
+
+        ///<summary>
+        /// ПРЕДЛОГ
+        ///</summary>
+        PREPOS_ru = 14,
+
+        ///<summary>
+        /// БЕЗЛИЧ_ГЛАГОЛ
+        ///</summary>
+        IMPERSONAL_VERB_ru = 15,
+
+        ///<summary>
+        /// ЧАСТИЦА
+        ///</summary>
+        PARTICLE_ru = 18,
+
+        ///<summary>
+        /// СОЮЗ
+        ///</summary>
+        CONJ_ru = 19,
+
+        ///<summary>
+        /// НАРЕЧИЕ
+        ///</summary>
+        ADVERB_ru = 20,
+
+        ///<summary>
+        /// ПУНКТУАТОР
+        ///</summary>
+        PUNCTUATION_class = 21,
+
+        ///<summary>
+        /// ПОСЛЕЛОГ
+        ///</summary>
+        POSTPOS_ru = 26,
+
+        ///<summary>
+        /// ПРИТЯЖ_ЧАСТИЦА
+        ///</summary>
+        POSESS_PARTICLE = 27,
+
+        ///<summary>
+        /// ЕДИНИЦА_ИЗМЕРЕНИЯ
+        ///</summary>
+        MEASURE_UNIT = 28,
+
+        ///<summary>
+        /// ПРЕФИКС_СОСТАВПРИЛ
+        ///</summary>
+        COMPOUND_ADJ_PREFIX = 29,
+
+        ///<summary>
+        /// ПРЕФИКС_СОСТАВ_СУЩ
+        ///</summary>
+        COMPOUND_NOUN_PREFIX = 30,
+
+        ///<summary>
+        /// UnknownEntries
+        ///</summary>
+        UNKNOWN_ENTRIES_CLASS = 85
     }
 
     public enum Enums
     {
-        CharCasing = 4, // enum CharCasing
-        PERSON_ru = 27, // enum PERSON_ru
-        NUMBER_ru = 28, // enum ЧИСЛО
-        GENDER_ru = 29, // enum РОД
-        TRANSITIVENESS_ru = 30, // enum ПЕРЕХОДНОСТЬ
-        PARTICIPLE_ru = 31, // enum ПРИЧАСТИЕ
-        PASSIVE_PARTICIPLE_ru = 32, // enum СТРАД
-        ASPECT_ru = 33, // enum ВИД
-        VERB_FORM_ru = 35, // enum НАКЛОНЕНИЕ
-        TENSE_ru = 36, // enum ВРЕМЯ
-        SHORTNESS_ru = 37, // enum КРАТКИЙ
-        CASE_ru = 39, // enum ПАДЕЖ
-        FORM_ru = 40, // enum ОДУШ
-        COUNTABILITY_ru = 41, // enum ПЕРЕЧИСЛИМОСТЬ
-        COMPAR_FORM_ru = 42, // enum СТЕПЕНЬ
-        CASE_GERUND_ru = 43, // enum ПадежВал
-        MODAL_ru = 44, // enum МОДАЛЬНЫЙ
-        VERBMODE_TENSE = 45, // enum СГД_Время
-        VERBMODE_DIRECTION = 46, // enum СГД_Направление
-        NUMERAL_CATEGORY = 47, // enum КАТЕГОРИЯ_ЧИСЛ
-        ADV_SEMANTICS = 48, // enum ОБСТ_ВАЛ
-        ADJ_TYPE = 49, // enum ТИП_ПРИЛ
-        PRONOUN_TYPE_ru = 51, // enum ТИП_МЕСТОИМЕНИЯ
-        VERB_TYPE_ru = 52, // enum ТИП_ГЛАГОЛА
-        PARTICLE_TYPE = 53, // enum ТИП_ЧАСТИЦЫ
-        ADV_MODIF_TYPE = 54 // enum ТИП_МОДИФ
+        ///<summary>
+        /// CharCasing
+        ///</summary>
+        CharCasing = 4,
+
+        ///<summary>
+        /// PERSON_ru
+        ///</summary>
+        PERSON_ru = 27,
+
+        ///<summary>
+        /// ЧИСЛО
+        ///</summary>
+        NUMBER_ru = 28,
+
+        ///<summary>
+        /// РОД
+        ///</summary>
+        GENDER_ru = 29,
+
+        ///<summary>
+        /// ПЕРЕХОДНОСТЬ
+        ///</summary>
+        TRANSITIVENESS_ru = 30,
+
+        ///<summary>
+        /// ПРИЧАСТИЕ
+        ///</summary>
+        PARTICIPLE_ru = 31,
+
+        ///<summary>
+        /// СТРАД
+        ///</summary>
+        PASSIVE_PARTICIPLE_ru = 32,
+
+        ///<summary>
+        /// ВИД
+        ///</summary>
+        ASPECT_ru = 33,
+
+        ///<summary>
+        /// НАКЛОНЕНИЕ
+        ///</summary>
+        VERB_FORM_ru = 35,
+
+        ///<summary>
+        /// ВРЕМЯ
+        ///</summary>
+        TENSE_ru = 36,
+
+        ///<summary>
+        /// КРАТКИЙ
+        ///</summary>
+        SHORTNESS_ru = 37,
+
+        ///<summary>
+        /// ПАДЕЖ
+        ///</summary>
+        CASE_ru = 39,
+
+        ///<summary>
+        /// ОДУШ
+        ///</summary>
+        FORM_ru = 40,
+
+        ///<summary>
+        /// ПЕРЕЧИСЛИМОСТЬ
+        ///</summary>
+        COUNTABILITY_ru = 41,
+
+        ///<summary>
+        /// СТЕПЕНЬ
+        ///</summary>
+        COMPAR_FORM_ru = 42,
+
+        ///<summary>
+        /// ПадежВал
+        ///</summary>
+        CASE_GERUND_ru = 43,
+
+        ///<summary>
+        /// МОДАЛЬНЫЙ
+        ///</summary>
+        MODAL_ru = 44,
+
+        ///<summary>
+        /// СГД_Время
+        ///</summary>
+        VERBMODE_TENSE = 45,
+
+        ///<summary>
+        /// СГД_Направление
+        ///</summary>
+        VERBMODE_DIRECTION = 46,
+
+        ///<summary>
+        /// КАТЕГОРИЯ_ЧИСЛ
+        ///</summary>
+        NUMERAL_CATEGORY = 47,
+
+        ///<summary>
+        /// ОБСТ_ВАЛ
+        ///</summary>
+        ADV_SEMANTICS = 48,
+
+        ///<summary>
+        /// ТИП_ПРИЛ
+        ///</summary>
+        ADJ_TYPE = 49,
+
+        ///<summary>
+        /// ТИП_МЕСТОИМЕНИЯ
+        ///</summary>
+        PRONOUN_TYPE_ru = 51,
+
+        ///<summary>
+        /// ТИП_ГЛАГОЛА
+        ///</summary>
+        VERB_TYPE_ru = 52,
+
+        ///<summary>
+        /// ТИП_ЧАСТИЦЫ
+        ///</summary>
+        PARTICLE_TYPE = 53,
+
+        ///<summary>
+        /// ТИП_МОДИФ
+        ///</summary>
+        ADV_MODIF_TYPE = 54
+
     }
 
     public enum CharCasing
     {
-        DECAPITALIZED_CASED = 0, // CharCasing : Lower
-        FIRST_CAPITALIZED_CASED = 1, // CharCasing : FirstCapitalized
-        ALL_CAPITALIZED_CASED = 2, // CharCasing : Upper
-        EACH_LEXEM_CAPITALIZED_CASED = 3, // CharCasing : EachLexemCapitalized
+        ///<summary>
+        /// CharCasing
+        ///</summary>
+        DECAPITALIZED_CASED = 0,
+
+        ///<summary>
+        /// CharCasing
+        ///</summary>
+        FIRST_CAPITALIZED_CASED = 1,
+
+        ///<summary>
+        /// CharCasing
+        ///</summary>
+        ALL_CAPITALIZED_CASED = 2,
+
+        ///<summary>
+        /// CharCasing
+        ///</summary>
+        EACH_LEXEM_CAPITALIZED_CASED = 3,
+
     }
 
     public enum PersonRu
     {
-        PERSON_1_ru = 0, // ЛИЦО : 1
-        PERSON_2_ru = 1, // ЛИЦО : 2
-        PERSON_3_ru = 2, // ЛИЦО : 3
+        ///<summary>
+        /// ЛИЦО 1
+        ///</summary>
+        PERSON_1_ru = 0,
+
+        ///<summary>
+        /// ЛИЦО 2
+        ///</summary>
+        PERSON_2_ru = 1,
+
+        ///<summary>
+        /// ЛИЦО 3
+        ///</summary>
+        PERSON_3_ru = 2,
+
     }
 
     public enum NumberRu
     {
-        SINGULAR_NUMBER_ru = 0, // ЧИСЛО : ЕД
-        PLURAL_NUMBER_ru = 1, // ЧИСЛО : МН
+        ///<summary>
+        /// ЧИСЛО : ЕД
+        ///</summary>
+        SINGULAR_NUMBER_ru = 0,
+
+        ///<summary>
+        /// ЧИСЛО : МН
+        ///</summary>
+        PLURAL_NUMBER_ru = 1,
+
     }
 
     public enum GenderRu
     {
-        MASCULINE_GENDER_ru = 0, // РОД : МУЖ
-        FEMININE_GENDER_ru = 1, // РОД : ЖЕН
-        NEUTRAL_GENDER_ru = 2, // РОД : СР
+        ///<summary>
+        /// РОД : МУЖ
+        ///</summary>
+        MASCULINE_GENDER_ru = 0,
+
+        ///<summary>
+        /// РОД : ЖЕН
+        ///</summary>
+        FEMININE_GENDER_ru = 1,
+
+        ///<summary>
+        /// РОД : СР
+        ///</summary>
+        NEUTRAL_GENDER_ru = 2,
+
     }
 
     public enum TransitivenesRu
     {
-        NONTRANSITIVE_VERB_ru = 0, // ПЕРЕХОДНОСТЬ : НЕПЕРЕХОДНЫЙ
-        TRANSITIVE_VERB_ru = 1, // ПЕРЕХОДНОСТЬ : ПЕРЕХОДНЫЙ
+        ///<summary>
+        /// ПЕРЕХОДНОСТЬ : НЕПЕРЕХОДНЫЙ
+        ///</summary>
+        NONTRANSITIVE_VERB_ru = 0,
+
+        ///<summary>
+        /// ПЕРЕХОДНОСТЬ : ПЕРЕХОДНЫЙ
+        ///</summary>
+        TRANSITIVE_VERB_ru = 1,
+
     }
 
     public enum AspectRu
     {
-        PERFECT_ru = 0, // ВИД : СОВЕРШ
-        IMPERFECT_ru = 1, // ВИД : НЕСОВЕРШ
+        ///<summary>
+        /// ВИД : СОВЕРШ
+        ///</summary>
+        PERFECT_ru = 0,
+
+        ///<summary>
+        /// ВИД : НЕСОВЕРШ
+        ///</summary>
+        IMPERFECT_ru = 1,
+
     }
 
     public enum VerbFormRu
     {
-        VB_INF_ru = 0, // НАКЛОНЕНИЕ : ИЗЪЯВ
-        VB_ORDER_ru = 1, // НАКЛОНЕНИЕ : ПОБУД
+        ///<summary>
+        /// НАКЛОНЕНИЕ : ИЗЪЯВ
+        ///</summary>
+        VB_INF_ru = 0,
+
+        ///<summary>
+        /// НАКЛОНЕНИЕ : ПОБУД
+        ///</summary>
+        VB_ORDER_ru = 1,
+
     }
 
     public enum TenseRu
     {
-        PAST_ru = 0, // ВРЕМЯ : ПРОШЕДШЕЕ
-        PRESENT_ru = 1, // ВРЕМЯ : НАСТОЯЩЕЕ
-        FUTURE_ru = 2, // ВРЕМЯ : БУДУЩЕЕ
+        ///<summary>
+        /// ВРЕМЯ : ПРОШЕДШЕЕ
+        ///</summary>
+        PAST_ru = 0,
+
+        ///<summary>
+        /// ВРЕМЯ : НАСТОЯЩЕЕ
+        ///</summary>
+        PRESENT_ru = 1,
+
+        ///<summary>
+        /// ВРЕМЯ : БУДУЩЕЕ
+        ///</summary>
+        FUTURE_ru = 2,
+
     }
 
     public enum CaseRu
     {
-        NOMINATIVE_CASE_ru = 0, // ПАДЕЖ : ИМ
-        VOCATIVE_CASE_ru = 1, // ЗВАТ
-        GENITIVE_CASE_ru = 2, // ПАДЕЖ : РОД
-        PARTITIVE_CASE_ru = 3, // ПАРТ
-        INSTRUMENTAL_CASE_ru = 5, // ПАДЕЖ : ТВОР
-        ACCUSATIVE_CASE_ru = 6, // ПАДЕЖ : ВИН
-        DATIVE_CASE_ru = 7, // ПАДЕЖ : ДАТ
-        PREPOSITIVE_CASE_ru = 8, // ПАДЕЖ : ПРЕДЛ
-        LOCATIVE_CASE_ru = 10, // МЕСТ
+        ///<summary>
+        /// ПАДЕЖ : ИМ
+        ///</summary>
+        NOMINATIVE_CASE_ru = 0,
+
+        ///<summary>
+        /// ЗВАТ
+        ///</summary>
+        VOCATIVE_CASE_ru = 1,
+
+        ///<summary>
+        /// ПАДЕЖ : РОД
+        ///</summary>
+        GENITIVE_CASE_ru = 2,
+
+        ///<summary>
+        /// ПАРТ
+        ///</summary>
+        PARTITIVE_CASE_ru = 3,
+
+        ///<summary>
+        /// ПАДЕЖ : ТВОР
+        ///</summary>
+        INSTRUMENTAL_CASE_ru = 5,
+
+        ///<summary>
+        /// ПАДЕЖ : ВИН
+        ///</summary>
+        ACCUSATIVE_CASE_ru = 6,
+
+        ///<summary>
+        /// ПАДЕЖ : ДАТ
+        ///</summary>
+        DATIVE_CASE_ru = 7,
+
+        ///<summary>
+        /// ПАДЕЖ : ПРЕДЛ
+        ///</summary>
+        PREPOSITIVE_CASE_ru = 8,
+
+        ///<summary>
+        /// МЕСТ
+        ///</summary>
+        LOCATIVE_CASE_ru = 10,
+
     }
 
     public enum FormRu
     {
-        ANIMATIVE_FORM_ru = 0, // ОДУШ : ОДУШ
-        INANIMATIVE_FORM_ru = 1, // ОДУШ : НЕОДУШ
+        ///<summary>
+        /// ОДУШ : ОДУШ
+        ///</summary>
+        ANIMATIVE_FORM_ru = 0,
+
+        ///<summary>
+        /// ОДУШ : НЕОДУШ
+        ///</summary>
+        INANIMATIVE_FORM_ru = 1,
+
     }
 
     public enum CountabilityRu
     {
-        COUNTABLE_ru = 0, // ПЕРЕЧИСЛИМОСТЬ : ДА
-        UNCOUNTABLE_ru = 1, // ПЕРЕЧИСЛИМОСТЬ : НЕТ
+        ///<summary>
+        /// ПЕРЕЧИСЛИМОСТЬ : ДА
+        ///</summary>
+        COUNTABLE_ru = 0,
+
+        ///<summary>
+        /// ПЕРЕЧИСЛИМОСТЬ : НЕТ
+        ///</summary>
+        UNCOUNTABLE_ru = 1,
+
     }
 
     public enum ComparativeRu
     {
-        ATTRIBUTIVE_FORM_ru = 0, // СТЕПЕНЬ : АТРИБ
-        COMPARATIVE_FORM_ru = 1, // СТЕПЕНЬ : СРАВН
-        SUPERLATIVE_FORM_ru = 2, // СТЕПЕНЬ : ПРЕВОСХ
-        LIGHT_COMPAR_FORM_RU = 3, // СТЕПЕНЬ : КОМПАРАТИВ2
-        ABBREV_FORM_ru = 4, // СТЕПЕНЬ : СОКРАЩ
+        ///<summary>
+        /// СТЕПЕНЬ : АТРИБ
+        ///</summary>
+        ATTRIBUTIVE_FORM_ru = 0,
+
+        ///<summary>
+        /// СТЕПЕНЬ : СРАВН
+        ///</summary>
+        COMPARATIVE_FORM_ru = 1,
+
+        ///<summary>
+        /// СТЕПЕНЬ : ПРЕВОСХ
+        ///</summary>
+        SUPERLATIVE_FORM_ru = 2,
+
+        ///<summary>
+        /// СТЕПЕНЬ : КОМПАРАТИВ2
+        ///</summary>
+        LIGHT_COMPAR_FORM_RU = 3,
+
+        ///<summary>
+        /// СТЕПЕНЬ : СОКРАЩ
+        ///</summary>
+        ABBREV_FORM_ru = 4,
+
     }
 
     public enum NumeralCategoriesRu
     {
-        CARDINAL = 0, // КАТЕГОРИЯ_ЧИСЛ : КОЛИЧ
-        COLLECTION = 1, // КАТЕГОРИЯ_ЧИСЛ : СОБИР
+        ///<summary>
+        /// КАТЕГОРИЯ_ЧИСЛ : КОЛИЧ
+        ///</summary>
+        CARDINAL = 0,
+
+        ///<summary>
+        /// КАТЕГОРИЯ_ЧИСЛ : СОБИР
+        ///</summary>
+        COLLECTION = 1,
+
     }
 
     public enum SemanticsRu
     {
-        S_LOCATION = 0, // ОБСТ_ВАЛ : МЕСТО
-        S_DIRECTION = 1, // ОБСТ_ВАЛ : НАПРАВЛЕНИЕ
-        S_DIRECTION_FROM = 2, // ОБСТ_ВАЛ : НАПРАВЛЕНИЕ_ОТКУДА
-        S_FINAL_POINT = 3, // ОБСТ_ВАЛ : КОНЕЧНАЯ_ТОЧКА
-        S_DISTANCE = 4, // ОБСТ_ВАЛ : РАССТОЯНИЕ
-        S_VELOCITY = 5, // ОБСТ_ВАЛ : СКОРОСТЬ
-        S_MOMENT = 6, // ОБСТ_ВАЛ : МОМЕНТ_ВРЕМЕНИ
-        S_DURATION = 7, // ОБСТ_ВАЛ : ДЛИТЕЛЬНОСТЬ
-        S_TIME_DIVISIBILITY = 8, // ОБСТ_ВАЛ : КРАТНОСТЬ
-        S_ANALOG = 9, // ОБСТ_ВАЛ : СОПОСТАВЛЕНИЕ
-        S_FACTOR = 10, // ОБСТ_ВАЛ : МНОЖИТЕЛЬ
+        ///<summary>
+        /// ОБСТ_ВАЛ : МЕСТО
+        ///</summary>
+        S_LOCATION = 0,
+
+        ///<summary>
+        /// ОБСТ_ВАЛ : НАПРАВЛЕНИЕ
+        ///</summary>
+        S_DIRECTION = 1,
+
+        ///<summary>
+        /// ОБСТ_ВАЛ : НАПРАВЛЕНИЕ_ОТКУДА
+        ///</summary>
+        S_DIRECTION_FROM = 2,
+
+        ///<summary>
+        /// ОБСТ_ВАЛ : КОНЕЧНАЯ_ТОЧКА
+        ///</summary>
+        S_FINAL_POINT = 3,
+
+        ///<summary>
+        /// ОБСТ_ВАЛ : РАССТОЯНИЕ
+        ///</summary>
+        S_DISTANCE = 4,
+
+        ///<summary>
+        /// ОБСТ_ВАЛ : СКОРОСТЬ
+        ///</summary>
+        S_VELOCITY = 5,
+
+        ///<summary>
+        /// ОБСТ_ВАЛ : МОМЕНТ_ВРЕМЕНИ
+        ///</summary>
+        S_MOMENT = 6,
+
+        ///<summary>
+        /// ОБСТ_ВАЛ : ДЛИТЕЛЬНОСТЬ
+        ///</summary>
+        S_DURATION = 7,
+
+        ///<summary>
+        /// ОБСТ_ВАЛ : КРАТНОСТЬ
+        ///</summary>
+        S_TIME_DIVISIBILITY = 8,
+
+        ///<summary>
+        /// ОБСТ_ВАЛ : СОПОСТАВЛЕНИЕ
+        ///</summary>
+        S_ANALOG = 9,
+
+        ///<summary>
+        /// ОБСТ_ВАЛ : МНОЖИТЕЛЬ
+        ///</summary>
+        S_FACTOR = 10,
+
     }
 
     public enum AdjectiveTypes
     {
-        ADJ_POSSESSIVE = 0, // ТИП_ПРИЛ : ПРИТЯЖ
-        ADJ_ORDINAL = 1, // ТИП_ПРИЛ : ПОРЯДК
+        ///<summary>
+        /// ТИП_ПРИЛ : ПРИТЯЖ
+        ///</summary>
+        ADJ_POSSESSIVE = 0,
+
+        ///<summary>
+        /// ТИП_ПРИЛ : ПОРЯДК
+        ///</summary>
+        ADJ_ORDINAL = 1,
+
     }
 
     public enum VerbStatesRu
     {
-        COPULA_VERB_ru = 2 // ТИП_ГЛАГОЛА : СВЯЗОЧН
+        ///<summary>
+        /// ТИП_ГЛАГОЛА : СВЯЗОЧН
+        ///</summary>
+        COPULA_VERB_ru = 2
+
     }
 
     public enum ParticleTypesRu
     {
-        PREFIX_PARTICLE = 0, // ТИП_ЧАСТИЦЫ : ПРЕФИКС
-        POSTFIX_PARTICLE = 1, // ТИП_ЧАСТИЦЫ : ПОСТФИКС
+        ///<summary>
+        /// ТИП_ЧАСТИЦЫ : ПРЕФИКС
+        ///</summary>
+        PREFIX_PARTICLE = 0,
+
+        ///<summary>
+        /// ТИП_ЧАСТИЦЫ : ПОСТФИКС
+        ///</summary>
+        POSTFIX_PARTICLE = 1,
+
     }
 
     public enum Links

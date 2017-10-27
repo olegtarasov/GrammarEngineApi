@@ -70,20 +70,6 @@ namespace GrammarEngineApi
         }
 
 
-        public static string NormalizePhraseFX(IntPtr hEngine, IntPtr hLinkages)
-        {
-            IntPtr wchar_ptr = sol_NormalizePhraseW(hEngine, hLinkages);
-
-            if (wchar_ptr == (IntPtr)null)
-            {
-                return "";
-            }
-
-            string res = Marshal.PtrToStringUni(wchar_ptr);
-            sol_Free(hEngine, wchar_ptr);
-            return res;
-        }
-
         // This is a simple and helpful wrapper for low-level sol_CountNGrams. It returns the 64 bit count value.
         public static ulong sol_CountNGramsFX(IntPtr hEngine, int Type, int Order)
         {
@@ -124,52 +110,6 @@ namespace GrammarEngineApi
             return res;
         }
 
-        public static string sol_GetClassNameFX(IntPtr hEngine, int ClassIndex)
-        {
-            if (IsLinux)
-            {
-                byte[] buf8 = GetLexemBuffer8();
-                sol_GetClassName8(hEngine, ClassIndex, buf8);
-                return Utf8ToString(buf8);
-            }
-            StringBuilder b = new StringBuilder();
-            b.Capacity = 32;
-            sol_GetClassName(hEngine, ClassIndex, b);
-            return b.ToString();
-        }
-
-
-        public static string sol_GetCoordNameFX(IntPtr hEngine, int coordID)
-        {
-            StringBuilder b = new StringBuilder(32);
-            sol_GetCoordName(hEngine, coordID, b);
-            return b.ToString();
-        }
-
-        public static string sol_GetCoordStateNameFX(IntPtr hEngine, int coordID, int stateID)
-        {
-            StringBuilder b = new StringBuilder(32);
-            sol_GetCoordStateName(hEngine, coordID, stateID, b);
-            return b.ToString();
-        }
-
-        /// <summary>
-        ///     Получение названия словарной статьи (обычно это нормальная, словарная форма слова) с указанным ID.
-        /// </summary>
-        public static string sol_GetEntryNameFX(IntPtr hEngine, int entryId)
-        {
-            if (IsLinux)
-            {
-                byte[] buf8 = GetLexemBuffer8();
-                sol_GetEntryName8(hEngine, entryId, buf8);
-                return Utf8ToString(buf8);
-            }
-            StringBuilder b = new StringBuilder(32); // магическая константа 32 - фактически сейчас слов длиннее 32 символов в словарях нет.
-            sol_GetEntryName(hEngine, entryId, b);
-            return b.ToString();
-        }
-
-
         public static string sol_GetErrorFX(IntPtr hEngine)
         {
             if (IsLinux)
@@ -200,23 +140,6 @@ namespace GrammarEngineApi
                 return b.ToString();
             }
         }
-
-        /// <summary>
-        ///     Получение очередного предложения от сегментатора текста.
-        /// </summary>
-        /// <param name="hBroker">
-        ///     Дескриптор сегментатора текста, созданный, например, с помощью
-        ///     <see cref="sol_CreateSentenceBroker">sol_CreateSentenceBroker</see>
-        /// </param>
-        /// <returns>Предложение, извлеченное из входного потока сегментатора</returns>
-        public static string sol_GetFetchedSentenceFX(IntPtr hBroker)
-        {
-            int sentence_length = sol_GetFetchedSentenceLen(hBroker);
-            StringBuilder b = new StringBuilder(sentence_length + 2);
-            sol_GetFetchedSentence(hBroker, b);
-            return b.ToString();
-        }
-
 
         public static string sol_GetFlexionHandlerWordformFX(
             IntPtr hEngine,

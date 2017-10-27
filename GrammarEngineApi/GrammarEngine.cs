@@ -168,17 +168,30 @@ namespace GrammarEngineApi
 
         public string GetClassName(int partOfSpeechId)
         {
-            return GrammarApi.sol_GetClassNameFX(GetEngineHandle(), partOfSpeechId);
+            if (IsLinux)
+            {
+                byte[] buf8 = GetLexemBuffer8();
+                GrammarApi.sol_GetClassName8(_engine, partOfSpeechId, buf8);
+                return Utf8ToString(buf8);
+            }
+            
+            var b = new StringBuilder(32);
+            GrammarApi.sol_GetClassName(_engine, partOfSpeechId, b);
+            return b.ToString();
         }
 
         public string GetCoordName(int coordId)
         {
-            return GrammarApi.sol_GetCoordNameFX(GetEngineHandle(), coordId);
+            var b = new StringBuilder(32);
+            GrammarApi.sol_GetCoordName(_engine, coordId, b);
+            return b.ToString();
         }
 
         public string GetCoordStateName(int coordId, int stateId)
         {
-            return GrammarApi.sol_GetCoordStateNameFX(GetEngineHandle(), coordId, stateId);
+            var b = new StringBuilder(32);
+            GrammarApi.sol_GetCoordStateName(_engine, coordId, stateId, b);
+            return b.ToString();
         }
 
         public int GetCoordType(int partOfSpeechId, int coordId)
@@ -205,9 +218,37 @@ namespace GrammarEngineApi
 
         public string GetEntryName(int idEntry)
         {
-            return GrammarApi.sol_GetEntryNameFX(_engine, idEntry);
+            if (IsLinux)
+            {
+                byte[] buf8 = GetLexemBuffer8();
+                GrammarApi.sol_GetEntryName8(_engine, idEntry, buf8);
+                return Utf8ToString(buf8);
+            }
+            StringBuilder b = new StringBuilder(32); // магическая константа 32 - фактически сейчас слов длиннее 32 символов в словарях нет.
+            GrammarApi.sol_GetEntryName(_engine, idEntry, b);
+            return b.ToString();
         }
 
+        public List<string> SplitSentenses(string input)
+        {
+            var broker = GrammarApi.sol_CreateSentenceBrokerMemW(_engine, input, (int)Languages.RUSSIAN_LANGUAGE);
+            var result = new List<string>();
+            
+            int len;
+            while ((len = GrammarApi.sol_FetchSentence(broker)) >= 0)
+            {
+                if (len > 0)
+                {
+                    var b = new StringBuilder(len + 2);
+                    GrammarApi.sol_GetFetchedSentence(broker, b);
+                    result.Add(b.ToString());
+                }
+            }
+            
+            GrammarApi.sol_DeleteSentenceBroker(broker);
+
+            return result;
+        }
 
         public List<int> GetLinks(int idEntry, int linkType)
         {
@@ -288,7 +329,16 @@ namespace GrammarEngineApi
 
         public string NormalizePhrase(AnalysisResults linkages)
         {
-            return GrammarApi.NormalizePhraseFX(_engine, linkages.GetHandle());
+            var wchar_ptr = GrammarApi.sol_NormalizePhraseW(_engine, linkages.GetHandle());
+
+            if (wchar_ptr == (IntPtr)null)
+            {
+                return "";
+            }
+
+            string res = Marshal.PtrToStringUni(wchar_ptr);
+            GrammarApi.sol_Free(_engine, wchar_ptr);
+            return res;
         }
 
 
@@ -351,6 +401,24 @@ namespace GrammarEngineApi
             }
 
             File.WriteAllBytes(path, bytes);
+        }
+
+        private static byte[] GetLexemBuffer8()
+        {
+            return new byte[32 * 6];
+        }
+
+        private static string Utf8ToString(byte[] utf8)
+        {
+            for (int i = 0; i < utf8.Length; ++i)
+            {
+                if (utf8[i] == 0)
+                {
+                    return Encoding.UTF8.GetString(utf8, 0, i);
+                }
+            }
+
+            throw new Exception();
         }
     }
 }
