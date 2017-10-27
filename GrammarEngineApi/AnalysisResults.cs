@@ -13,10 +13,10 @@ namespace GrammarEngineApi
             _hPack = new AnalysisResultsSafeHandle(hPack);
             _nodes = new List<SyntaxTreeNode>();
 
-            int n = GrammarEngineApi.sol_CountRoots(_hPack.DangerousGetHandle(), 0);
+            int n = GrammarApi.sol_CountRoots(_hPack.DangerousGetHandle(), 0);
             for (int i = 0; i < n; ++i)
             {
-                SyntaxTreeNode node = new SyntaxTreeNode(gren, GrammarEngineApi.sol_GetRoot(_hPack.DangerousGetHandle(), 0, i));
+                SyntaxTreeNode node = new SyntaxTreeNode(gren, GrammarApi.sol_GetRoot(_hPack.DangerousGetHandle(), 0, i));
                 _nodes.Add(node);
             }
         }
@@ -26,10 +26,10 @@ namespace GrammarEngineApi
             _hPack = new AnalysisResultsSafeHandle(hPack, releaseHandle);
             _nodes = new List<SyntaxTreeNode>();
 
-            int n = GrammarEngineApi.sol_CountRoots(_hPack.DangerousGetHandle(), 0);
+            int n = GrammarApi.sol_CountRoots(_hPack.DangerousGetHandle(), 0);
             for (int i = 0; i < n; ++i)
             {
-                SyntaxTreeNode node = new SyntaxTreeNode(gren, GrammarEngineApi.sol_GetRoot(_hPack.DangerousGetHandle(), 0, i));
+                SyntaxTreeNode node = new SyntaxTreeNode(gren, GrammarApi.sol_GetRoot(_hPack.DangerousGetHandle(), 0, i));
                 _nodes.Add(node);
             }
         }

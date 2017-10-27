@@ -15,7 +15,7 @@ namespace GrammarEngineApi
 
         public int Count()
         {
-            return GrammarEngineApi.sol_LinksInfoCount(_hEngine, _hList);
+            return GrammarApi.sol_LinksInfoCount(_hEngine, _hList);
         }
 
         public void Dispose()
@@ -26,17 +26,17 @@ namespace GrammarEngineApi
 
         public int GetEntry2(int index)
         {
-            return GrammarEngineApi.sol_LinksInfoEKey2(_hEngine, _hList, index);
+            return GrammarApi.sol_LinksInfoEKey2(_hEngine, _hList, index);
         }
 
         public int GetLinkId(int index)
         {
-            return GrammarEngineApi.sol_LinksInfoID(_hEngine, _hList, index);
+            return GrammarApi.sol_LinksInfoID(_hEngine, _hList, index);
         }
 
         public string GetTags(int index)
         {
-            return GrammarEngineApi.sol_LinksInfoTagsTxtFX(_hEngine, _hList, index);
+            return GrammarApi.sol_LinksInfoTagsTxtFX(_hEngine, _hList, index);
         }
 
         //[SecurityPermission(SecurityAction.Demand, UnmanagedCode = true)]
@@ -44,7 +44,7 @@ namespace GrammarEngineApi
         {
             if (_hList != IntPtr.Zero)
             {
-                GrammarEngineApi.sol_DeleteLinksInfo(_hEngine, _hList);
+                GrammarApi.sol_DeleteLinksInfo(_hEngine, _hList);
                 _hList = IntPtr.Zero;
             }
         }

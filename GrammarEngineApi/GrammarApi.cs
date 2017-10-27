@@ -47,7 +47,7 @@ namespace GrammarEngineApi
     /// <summary>
     /// Low-level API
     /// </summary>
-    public sealed class GrammarEngineApi
+    public sealed class GrammarApi
     {
         //private const string gren_dll = "libgren.so";
         private const string gren_dll = "solarix_grammar_engine.dll";

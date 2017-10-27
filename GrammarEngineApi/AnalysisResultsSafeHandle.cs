@@ -30,7 +30,7 @@ namespace GrammarEngineApi
         {
             if (_releaseHandle)
             {
-                GrammarEngineApi.sol_DeleteResPack(handle);
+                GrammarApi.sol_DeleteResPack(handle);
             }
 
             handle = IntPtr.Zero;

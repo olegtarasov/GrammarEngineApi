@@ -21,28 +21,28 @@ namespace GrammarEngineApi
             this._gren = gren;
             this.HNode = hNode;
 
-            int nleaf = GrammarEngineApi.sol_CountLeafs(this.HNode);
+            int nleaf = GrammarApi.sol_CountLeafs(this.HNode);
             Leafs = new List<SyntaxTreeNode>();
             for (int i = 0; i < nleaf; ++i)
             {
-                Leafs.Add(new SyntaxTreeNode(this._gren, GrammarEngineApi.sol_GetLeaf(this.HNode, i)));
+                Leafs.Add(new SyntaxTreeNode(this._gren, GrammarApi.sol_GetLeaf(this.HNode, i)));
             }
         }
 
         private Entry _entry;
-        public Entry Entry => _entry ?? (_entry = new Entry(_gren, GrammarEngineApi.sol_GetNodeIEntry(_gren.GetEngineHandle(), HNode)));
+        public Entry Entry => _entry ?? (_entry = new Entry(_gren, GrammarApi.sol_GetNodeIEntry(_gren.GetEngineHandle(), HNode)));
 
         private List<CoordPair> _pairs;
         public IReadOnlyList<CoordPair> Pairs => _pairs ?? (_pairs = GetPairs());
 
         private string _word;
-        public string Word => _word ?? (_word = GrammarEngineApi.sol_GetNodeContentsFX(HNode));
+        public string Word => _word ?? (_word = GrammarApi.sol_GetNodeContentsFX(HNode));
 
-        public int SourcePosition => GrammarEngineApi.sol_GetNodePosition(HNode);
+        public int SourcePosition => GrammarApi.sol_GetNodePosition(HNode);
 
         public bool Contains(CoordPair p)
         {
-            return GrammarEngineApi.sol_GetNodeCoordPair(HNode, p.CoordId, p.StateId) == 1;
+            return GrammarApi.sol_GetNodeCoordPair(HNode, p.CoordId, p.StateId) == 1;
         }
 
         public override bool Equals(object obj)
@@ -57,7 +57,7 @@ namespace GrammarEngineApi
 
         public int GetCoordState(int CoordID)
         {
-            return GrammarEngineApi.sol_GetNodeCoordState(HNode, CoordID);
+            return GrammarApi.sol_GetNodeCoordState(HNode, CoordID);
         }
 
         public override int GetHashCode()
@@ -68,20 +68,20 @@ namespace GrammarEngineApi
 
         public int GetLinkType(int LeafIndex)
         {
-            return GrammarEngineApi.sol_GetLeafLinkType(HNode, LeafIndex);
+            return GrammarApi.sol_GetLeafLinkType(HNode, LeafIndex);
         }
 
         private List<CoordPair> GetPairs()
         {
             List<CoordPair> res = new List<CoordPair>();
 
-            int n = GrammarEngineApi.sol_GetNodePairsCount(HNode);
+            int n = GrammarApi.sol_GetNodePairsCount(HNode);
             if (n > 0)
             {
                 for (int i = 0; i < n; ++i)
                 {
-                    var p = new CoordPair(GrammarEngineApi.sol_GetNodePairCoord(HNode, i),
-                        GrammarEngineApi.sol_GetNodePairState(HNode, i));
+                    var p = new CoordPair(_gren, GrammarApi.sol_GetNodePairCoord(HNode, i),
+                        GrammarApi.sol_GetNodePairState(HNode, i));
                     res.Add(p);
                 }
             }
@@ -91,7 +91,7 @@ namespace GrammarEngineApi
 
         public int GetVersionEntryID(int version_index)
         {
-            return GrammarEngineApi.sol_GetNodeVerIEntry(_gren.GetEngineHandle(), HNode, version_index);
+            return GrammarApi.sol_GetNodeVerIEntry(_gren.GetEngineHandle(), HNode, version_index);
         }
 
         public override string ToString()
@@ -102,14 +102,14 @@ namespace GrammarEngineApi
 
         public bool VersionContains(int version_index, CoordPair p)
         {
-            return GrammarEngineApi.sol_GetNodeVerCoordPair(HNode, version_index, p.CoordId, p.StateId) == 1;
+            return GrammarApi.sol_GetNodeVerCoordPair(HNode, version_index, p.CoordId, p.StateId) == 1;
         }
 
 
         // Number of versions of morphological analysis
         public int VersionCount()
         {
-            return GrammarEngineApi.sol_GetNodeVersionCount(_gren.GetEngineHandle(), HNode);
+            return GrammarApi.sol_GetNodeVersionCount(_gren.GetEngineHandle(), HNode);
         }
     }
 }

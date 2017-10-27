@@ -21,9 +21,9 @@ namespace GrammarEngineApi
 
         public string ReadSentence()
         {
-            if (GrammarEngineApi.sol_FetchSentence(_hObject) >= 0)
+            if (GrammarApi.sol_FetchSentence(_hObject) >= 0)
             {
-                return GrammarEngineApi.sol_GetFetchedSentenceFX(_hObject);
+                return GrammarApi.sol_GetFetchedSentenceFX(_hObject);
             }
             return null;
         }
@@ -32,7 +32,7 @@ namespace GrammarEngineApi
         {
             if (_hObject != IntPtr.Zero)
             {
-                GrammarEngineApi.sol_DeleteSentenceBroker(_hObject);
+                GrammarApi.sol_DeleteSentenceBroker(_hObject);
                 _hObject = IntPtr.Zero;
             }
         }

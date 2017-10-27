@@ -11,6 +11,7 @@
     <PackageLicenseUrl>http://solarix.ru/license/purchase_desktop_search_utility.shtml</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/Koziev/GrammarEngine</PackageProjectUrl>
     <RepositoryUrl>https://github.com/total-world-domination/GrammarEngineApi</RepositoryUrl>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
 </Project>
