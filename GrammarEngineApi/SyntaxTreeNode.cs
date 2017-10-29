@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace GrammarEngineApi
 {
@@ -36,7 +38,7 @@ namespace GrammarEngineApi
         public IReadOnlyList<CoordPair> Pairs => _pairs ?? (_pairs = GetPairs());
 
         private string _word;
-        public string Word => _word ?? (_word = GrammarApi.sol_GetNodeContentsFX(HNode));
+        public string Word => _word ?? (_word = GetNodeContents(HNode));
 
         public int SourcePosition => GrammarApi.sol_GetNodePosition(HNode);
 
@@ -110,6 +112,13 @@ namespace GrammarEngineApi
         public int VersionCount()
         {
             return GrammarApi.sol_GetNodeVersionCount(_gren.GetEngineHandle(), HNode);
+        }
+
+        public static string GetNodeContents(IntPtr hNode)
+        {
+            var b = new StringBuilder(32);
+            GrammarApi.sol_GetNodeContents(hNode, b);
+            return b.ToString();
         }
     }
 }

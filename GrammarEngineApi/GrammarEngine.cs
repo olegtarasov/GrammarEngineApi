@@ -22,12 +22,12 @@ namespace GrammarEngineApi
         {
             UnpackResources();
             _engine = GrammarApi.sol_CreateGrammarEngineW(null);
-            int result = LinuxHandler(() => GrammarApi.sol_LoadDictionary8(_engine, GetUtf8Bytes(dictionaryPath)),
+            var result = LinuxHandler(() => GrammarApi.sol_LoadDictionary8(_engine, GetUtf8Bytes(dictionaryPath)),
                 () => GrammarApi.sol_LoadDictionaryW(_engine, dictionaryPath));
 
             if (result != 1)
             {
-                string err = GrammarApi.sol_GetErrorFX(_engine);
+                var err = GetLastError();
                 throw new InvalidOperationException($"Failed to load dictionary from {dictionaryPath}. {err}");
             }
         }
@@ -41,46 +41,77 @@ namespace GrammarEngineApi
 
         public AnalysisResults AnalyzeMorphology(string phrase, Languages language)
         {
-            IntPtr hPack = GrammarApi.sol_MorphologyAnalysis(_engine, phrase, 0, 0, 0, (int)language);
-            AnalysisResults res = new AnalysisResults(this, hPack);
+            var hPack = GrammarApi.sol_MorphologyAnalysis(_engine, phrase, 0, 0, 0, (int)language);
+            var res = new AnalysisResults(this, hPack);
             return res;
         }
 
         public AnalysisResults AnalyzeMorphology(string phrase, Languages language, MorphologyFlags flags)
         {
-            IntPtr hPack = GrammarApi.sol_MorphologyAnalysis(_engine, phrase, flags, 0, 0, (int)language);
-            AnalysisResults res = new AnalysisResults(this, hPack);
+            var hPack = GrammarApi.sol_MorphologyAnalysis(_engine, phrase, flags, 0, 10000, (int)language);
+            var res = new AnalysisResults(this, hPack);
             return res;
         }
 
         public AnalysisResults AnalyzeMorphology(string phrase, Languages language, MorphologyFlags flags, int constraints)
         {
-            IntPtr hPack = GrammarApi.sol_MorphologyAnalysis(_engine, phrase, flags, 0, constraints, (int)language);
-            AnalysisResults res = new AnalysisResults(this, hPack);
+            var hPack = GrammarApi.sol_MorphologyAnalysis(_engine, phrase, flags, 0, constraints, (int)language);
+            var res = new AnalysisResults(this, hPack);
             return res;
         }
 
 
         public AnalysisResults AnalyzeSyntax(string phrase, Languages language)
         {
-            IntPtr hPack = GrammarApi.sol_SyntaxAnalysis(_engine, phrase, 0, 0, 60000, (int)language);
-            AnalysisResults res = new AnalysisResults(this, hPack);
+            var hPack = GrammarApi.sol_SyntaxAnalysis(_engine, phrase, 0, 0, 60000, (int)language);
+            var res = new AnalysisResults(this, hPack);
             return res;
         }
 
         public AnalysisResults AnalyzeSyntax(string phrase, Languages language, MorphologyFlags morphFlags, SyntaxFlags syntaxFlags)
         {
-            IntPtr hPack = GrammarApi.sol_SyntaxAnalysis(_engine, phrase, morphFlags, syntaxFlags, 60000, (int)language);
-            AnalysisResults res = new AnalysisResults(this, hPack);
+            var hPack = GrammarApi.sol_SyntaxAnalysis(_engine, phrase, morphFlags, syntaxFlags, 60000, (int)language);
+            var res = new AnalysisResults(this, hPack);
             return res;
         }
 
         public AnalysisResults AnalyzeSyntax(string phrase, Languages language, MorphologyFlags morphFlags, SyntaxFlags syntaxFlags, int constraints)
         {
-            IntPtr hPack = GrammarApi.sol_SyntaxAnalysis(_engine, phrase, morphFlags, syntaxFlags, constraints, (int)language);
-            AnalysisResults res = new AnalysisResults(this, hPack);
+            var hPack = GrammarApi.sol_SyntaxAnalysis(_engine, phrase, morphFlags, syntaxFlags, constraints, (int)language);
+            var res = new AnalysisResults(this, hPack);
             return res;
         }
+
+        /// <summary>
+        ///     Split the string into words and return the list of these words.
+        ///     Language-specific rules are used to process dots, hyphens etc.
+        /// </summary>
+        public string[] Tokenize(string text, Languages language)
+        {
+            var hTokens = GrammarApi.sol_TokenizeW(_engine, text, (int)language);
+
+            string[] tokens = null;
+            var maxWordLen = GrammarApi.sol_MaxLexemLen(_engine) + 1;
+
+            if (hTokens != (IntPtr)null)
+            {
+                var ntoken = GrammarApi.sol_CountStrings(hTokens);
+                tokens = new string[ntoken];
+
+                var buffer = new StringBuilder(maxWordLen);
+                for (var i = 0; i < ntoken; ++i)
+                {
+                    buffer.Length = 0;
+                    GrammarApi.sol_GetStringW(hTokens, i, buffer);
+                    tokens[i] = buffer.ToString();
+                }
+
+                GrammarApi.sol_DeleteStrings(hTokens);
+            }
+
+            return tokens;
+        }
+
 
         public int CountCoordStates(int coordId)
         {
@@ -142,20 +173,20 @@ namespace GrammarEngineApi
 
         public List<string> GenerateWordforms(int entryId, List<int> coordId, List<int> stateId)
         {
-            int npairs = coordId.Count;
-            int[] pairs = new int[npairs * 2];
+            var npairs = coordId.Count;
+            var pairs = new int[npairs * 2];
             for (int i = 0, j = 0; i < npairs; ++i)
             {
                 pairs[j++] = coordId[i];
                 pairs[j++] = stateId[i];
             }
 
-            List<string> res = new List<string>();
-            IntPtr hStr = GrammarApi.sol_GenerateWordforms(_engine, entryId, npairs, pairs);
+            var res = new List<string>();
+            var hStr = GrammarApi.sol_GenerateWordforms(_engine, entryId, npairs, pairs);
             if (hStr != (IntPtr)0)
             {
-                int nstr = GrammarApi.sol_CountStrings(hStr);
-                for (int k = 0; k < nstr; ++k)
+                var nstr = GrammarApi.sol_CountStrings(hStr);
+                for (var k = 0; k < nstr; ++k)
                 {
                     res.Add(GrammarApi.sol_GetStringFX(hStr, k));
                 }
@@ -170,11 +201,11 @@ namespace GrammarEngineApi
         {
             if (IsLinux)
             {
-                byte[] buf8 = GetLexemBuffer8();
+                var buf8 = GetLexemBuffer8();
                 GrammarApi.sol_GetClassName8(_engine, partOfSpeechId, buf8);
                 return Utf8ToString(buf8);
             }
-            
+
             var b = new StringBuilder(32);
             GrammarApi.sol_GetClassName(_engine, partOfSpeechId, b);
             return b.ToString();
@@ -220,11 +251,11 @@ namespace GrammarEngineApi
         {
             if (IsLinux)
             {
-                byte[] buf8 = GetLexemBuffer8();
+                var buf8 = GetLexemBuffer8();
                 GrammarApi.sol_GetEntryName8(_engine, idEntry, buf8);
                 return Utf8ToString(buf8);
             }
-            StringBuilder b = new StringBuilder(32); // магическая константа 32 - фактически сейчас слов длиннее 32 символов в словарях нет.
+            var b = new StringBuilder(32); // магическая константа 32 - фактически сейчас слов длиннее 32 символов в словарях нет.
             GrammarApi.sol_GetEntryName(_engine, idEntry, b);
             return b.ToString();
         }
@@ -233,7 +264,7 @@ namespace GrammarEngineApi
         {
             var broker = GrammarApi.sol_CreateSentenceBrokerMemW(_engine, input, (int)Languages.RUSSIAN_LANGUAGE);
             var result = new List<string>();
-            
+
             int len;
             while ((len = GrammarApi.sol_FetchSentence(broker)) >= 0)
             {
@@ -244,7 +275,7 @@ namespace GrammarEngineApi
                     result.Add(b.ToString());
                 }
             }
-            
+
             GrammarApi.sol_DeleteSentenceBroker(broker);
 
             return result;
@@ -252,15 +283,15 @@ namespace GrammarEngineApi
 
         public List<int> GetLinks(int idEntry, int linkType)
         {
-            List<int> res = new List<int>();
+            var res = new List<int>();
 
-            IntPtr hList = GrammarApi.sol_ListLinksTxt(_engine, idEntry, linkType, 0);
+            var hList = GrammarApi.sol_ListLinksTxt(_engine, idEntry, linkType, 0);
             if (hList != IntPtr.Zero)
             {
-                int n = GrammarApi.sol_LinksInfoCount(_engine, hList);
-                for (int i = 0; i < n; ++i)
+                var n = GrammarApi.sol_LinksInfoCount(_engine, hList);
+                for (var i = 0; i < n; ++i)
                 {
-                    int idEntry2 = GrammarApi.sol_LinksInfoEKey2(_engine, hList, i);
+                    var idEntry2 = GrammarApi.sol_LinksInfoEKey2(_engine, hList, i);
                     res.Add(idEntry2);
                 }
 
@@ -291,15 +322,15 @@ namespace GrammarEngineApi
 
         public List<int> GetPhrasalLinks(int idPhrase, int linkType)
         {
-            List<int> res = new List<int>();
+            var res = new List<int>();
 
-            IntPtr hList = GrammarApi.sol_ListLinksTxt(_engine, idPhrase, linkType, 1);
+            var hList = GrammarApi.sol_ListLinksTxt(_engine, idPhrase, linkType, 1);
             if (hList != IntPtr.Zero)
             {
-                int n = GrammarApi.sol_LinksInfoCount(_engine, hList);
-                for (int i = 0; i < n; ++i)
+                var n = GrammarApi.sol_LinksInfoCount(_engine, hList);
+                for (var i = 0; i < n; ++i)
                 {
-                    int idPhrase2 = GrammarApi.sol_LinksInfoEKey2(_engine, hList, i);
+                    var idPhrase2 = GrammarApi.sol_LinksInfoEKey2(_engine, hList, i);
                     res.Add(idPhrase2);
                 }
 
@@ -316,14 +347,14 @@ namespace GrammarEngineApi
 
         public TextSegmenter GetTextFileSegmenter(string filePath, string encoding, int languageId)
         {
-            IntPtr h = GrammarApi.sol_CreateSentenceBroker(GetEngineHandle(), filePath, encoding, languageId);
+            var h = GrammarApi.sol_CreateSentenceBroker(GetEngineHandle(), filePath, encoding, languageId);
             return new TextSegmenter(this, h);
         }
 
 
         public ThesaurusLinks ListLinksTxt(int idEntry, int linkCode, int flags)
         {
-            IntPtr hList = GrammarApi.sol_ListLinksTxt(GetEngineHandle(), idEntry, linkCode, flags);
+            var hList = GrammarApi.sol_ListLinksTxt(GetEngineHandle(), idEntry, linkCode, flags);
             return new ThesaurusLinks(GetEngineHandle(), hList);
         }
 
@@ -336,7 +367,7 @@ namespace GrammarEngineApi
                 return "";
             }
 
-            string res = Marshal.PtrToStringUni(wchar_ptr);
+            var res = Marshal.PtrToStringUni(wchar_ptr);
             GrammarApi.sol_Free(_engine, wchar_ptr);
             return res;
         }
@@ -345,11 +376,6 @@ namespace GrammarEngineApi
         public string RestoreCasing(int entryId, string word)
         {
             return GrammarApi.sol_RestoreCasingFX(_engine, word, entryId);
-        }
-
-        public string[] Tokenize(string text, int languageId)
-        {
-            return GrammarApi.sol_TokenizeFX(GetEngineHandle(), text, languageId);
         }
 
         protected virtual void Dispose(bool disposing)
@@ -366,10 +392,7 @@ namespace GrammarEngineApi
             {
                 return isLinux();
             }
-            else
-            {
-                return isOther();
-            }
+            return isOther();
         }
 
         private byte[] GetUtf8Bytes(string input) => Encoding.UTF8.GetBytes(input);
@@ -377,7 +400,7 @@ namespace GrammarEngineApi
         private void UnpackResources()
         {
             string curDir;
-            string ass = Assembly.GetExecutingAssembly().Location;
+            var ass = Assembly.GetExecutingAssembly().Location;
             if (string.IsNullOrEmpty(ass))
             {
                 curDir = Environment.CurrentDirectory;
@@ -394,7 +417,7 @@ namespace GrammarEngineApi
 
         private void UnpackFile(string curDir, string fileName, byte[] bytes)
         {
-            string path = !string.IsNullOrEmpty(curDir) ? Path.Combine(curDir, fileName) : fileName;
+            var path = !string.IsNullOrEmpty(curDir) ? Path.Combine(curDir, fileName) : fileName;
             if (File.Exists(path))
             {
                 return;
@@ -410,7 +433,7 @@ namespace GrammarEngineApi
 
         private static string Utf8ToString(byte[] utf8)
         {
-            for (int i = 0; i < utf8.Length; ++i)
+            for (var i = 0; i < utf8.Length; ++i)
             {
                 if (utf8[i] == 0)
                 {
@@ -419,6 +442,37 @@ namespace GrammarEngineApi
             }
 
             throw new Exception();
+        }
+
+        public string GetLastError()
+        {
+            if (IsLinux)
+            {
+                var len = GrammarApi.sol_GetErrorLen8(_engine);
+                if (len == 0)
+                {
+                    return "";
+                }
+
+                var errUtf8 = new byte[len];
+                GrammarApi.sol_GetError8(_engine, errUtf8, len);
+
+                GrammarApi.sol_ClearError(_engine);
+                return Encoding.UTF8.GetString(errUtf8);
+            }
+            else
+            {
+                var len = GrammarApi.sol_GetErrorLen(_engine);
+                if (len == 0)
+                {
+                    return "";
+                }
+
+                var b = new StringBuilder(len + 1);
+                GrammarApi.sol_GetError(_engine, b, len);
+                GrammarApi.sol_ClearError(_engine);
+                return b.ToString();
+            }
         }
     }
 }

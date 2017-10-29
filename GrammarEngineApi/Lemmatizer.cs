@@ -9,9 +9,9 @@
             _engine = engine;
         }
 
-        public LemmatizedToken[] LemmatizeSentense(string sentense)
+        public LemmatizedToken[] LemmatizeSentense(string sentense, MorphologyFlags flags = MorphologyFlags.SOL_GREN_MODEL | MorphologyFlags.SOL_GREN_MODEL_ONLY)
         {
-            var res = _engine.AnalyzeMorphology(sentense, Languages.RUSSIAN_LANGUAGE, MorphologyFlags.SOL_GREN_MODEL | MorphologyFlags.SOL_GREN_MODEL_ONLY);
+            var res = _engine.AnalyzeMorphology(sentense, Languages.RUSSIAN_LANGUAGE, flags);
             if (res == null || res.Nodes.Count <= 2)
             {
                 return new LemmatizedToken[0];

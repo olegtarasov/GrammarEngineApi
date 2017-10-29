@@ -54,6 +54,8 @@ namespace GrammarEngineApi
         ///     не использовать.
         ///     Благодаря этому разметка выполняется существенно быстрее, хотя количество ошибок увеличивается.
         /// </summary>
-        SOL_GREN_MODEL_ONLY = 0x00002000
+        SOL_GREN_MODEL_ONLY = 0x00002000,
+
+        SOL_GREN_REORDER_TREE = 0x00000400
     }
 }

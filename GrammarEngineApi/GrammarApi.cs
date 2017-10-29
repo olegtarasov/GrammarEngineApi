@@ -50,7 +50,7 @@ namespace GrammarEngineApi
     public sealed class GrammarApi
     {
         //private const string gren_dll = "libgren.so";
-        private const string gren_dll = "solarix_grammar_engine.dll";
+        private const string gren_dll = "solarix_grammar_engine";
 
 
         // -----------------------------
@@ -110,37 +110,6 @@ namespace GrammarEngineApi
             return res;
         }
 
-        public static string sol_GetErrorFX(IntPtr hEngine)
-        {
-            if (IsLinux)
-            {
-                int len = sol_GetErrorLen8(hEngine);
-                if (len == 0)
-                {
-                    return "";
-                }
-
-                byte[] err_utf8 = new byte[len];
-                sol_GetError8(hEngine, err_utf8, len);
-
-                sol_ClearError(hEngine);
-                return Encoding.UTF8.GetString(err_utf8);
-            }
-            else
-            {
-                int len = sol_GetErrorLen(hEngine);
-                if (len == 0)
-                {
-                    return "";
-                }
-
-                StringBuilder b = new StringBuilder(len + 1);
-                sol_GetError(hEngine, b, len);
-                sol_ClearError(hEngine);
-                return b.ToString();
-            }
-        }
-
         public static string sol_GetFlexionHandlerWordformFX(
             IntPtr hEngine,
             IntPtr /*HFLEXIONTABLE*/ hFlex,
@@ -165,14 +134,6 @@ namespace GrammarEngineApi
             sol_GetLongStringW(hString, b);
             return b.ToString();
         }
-
-        public static string sol_GetNodeContentsFX(IntPtr hNode)
-        {
-            StringBuilder b = new StringBuilder(32);
-            sol_GetNodeContents(hNode, b);
-            return b.ToString();
-        }
-
 
         public static string sol_GetNodeMarkNameFX(IntPtr hNode, int mark_index)
         {
@@ -267,17 +228,6 @@ namespace GrammarEngineApi
             return res;
         }
 
-
-        public static int sol_LoadDictionaryFX(IntPtr hEngine, string DictionaryPath)
-        {
-            if (IsLinux)
-            {
-                byte[] path8 = Encoding.UTF8.GetBytes(DictionaryPath);
-                return sol_LoadDictionary8(hEngine, path8);
-            }
-            return sol_LoadDictionaryW(hEngine, DictionaryPath);
-        }
-
         public static IntPtr sol_ProjectMisspelledWordFX(IntPtr hEngine, string Word, int AllowDynforms, int nmaxmiss)
         {
             if (IsLinux)
@@ -313,54 +263,6 @@ namespace GrammarEngineApi
                 return res;
             }
             return new int[0];
-        }
-
-
-        // Split the string into words and return the list of these words.
-        // Language-specific rules are used to process dots, hyphens etc.
-        public static string[] sol_TokenizeFX(IntPtr hEngine, string Text, int LanguageID)
-        {
-            IntPtr hTokens = sol_TokenizeW(hEngine, Text, LanguageID);
-
-            string[] tokens = null;
-            int max_word_len = sol_MaxLexemLen(hEngine) + 1;
-
-            if (hTokens != (IntPtr)null)
-            {
-                int ntoken = sol_CountStrings(hTokens);
-                tokens = new string[ntoken];
-
-                StringBuilder buffer = new StringBuilder(max_word_len);
-                for (int i = 0; i < ntoken; ++i)
-                {
-                    buffer.Length = 0;
-                    sol_GetStringW(hTokens, i, buffer);
-                    tokens[i] = buffer.ToString();
-                }
-
-                sol_DeleteStrings(hTokens);
-            }
-
-            return tokens;
-        }
-
-
-        private static byte[] GetLexemBuffer8()
-        {
-            return new byte[32 * 6];
-        }
-
-        private static string Utf8ToString(byte[] utf8)
-        {
-            for (int i = 0; i < utf8.Length; ++i)
-            {
-                if (utf8[i] == 0)
-                {
-                    return Encoding.UTF8.GetString(utf8, 0, i);
-                }
-            }
-
-            throw new Exception();
         }
 
 
