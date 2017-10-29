@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GrammarEngineApi", "GrammarEngineApi\GrammarEngineApi.csproj", "{6D8DB26B-783B-41D0-A218-1BE0C72ADC23}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrammarTest", "GrammarTest\GrammarTest.csproj", "{CF98E363-3535-4D9D-8ABC-6E292E335C13}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GrammarTest", "GrammarTest\GrammarTest.csproj", "{CF98E363-3535-4D9D-8ABC-6E292E335C13}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

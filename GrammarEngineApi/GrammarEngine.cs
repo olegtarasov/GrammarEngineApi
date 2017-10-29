@@ -48,7 +48,7 @@ namespace GrammarEngineApi
 
         public AnalysisResults AnalyzeMorphology(string phrase, Languages language, MorphologyFlags flags)
         {
-            var hPack = GrammarApi.sol_MorphologyAnalysis(_engine, phrase, flags, 0, 10000, (int)language);
+            var hPack = GrammarApi.sol_MorphologyAnalysis(_engine, phrase, flags, 0, 0, (int)language);
             var res = new AnalysisResults(this, hPack);
             return res;
         }

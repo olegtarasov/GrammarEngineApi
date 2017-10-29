@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
+using System.Text;
 using GrammarEngineApi;
 
 
@@ -11,8 +13,10 @@ namespace GrammarTest
         {
             var eng = new GrammarEngine(@"C:\Projects\CognitiveFramework\embeddings\grammar\dictionary.xml");
             var lemmatizer = new Lemmatizer(eng);
-            var sentenses = eng.SplitSentenses("Я взял на дачу пятьст тридцать пять кило кокса, штуку баксов, 10 обезьянок. Превед медвед!");
-            var lemmatized = lemmatizer.LemmatizeSentense(sentenses[0], MorphologyFlags.SOL_GREN_ALLOW_FUZZY | MorphologyFlags.SOL_GREN_REORDER_TREE);
+            var sentenses = eng.SplitSentenses("Я взял на дачу пятьсот тридцать пять кило кокса, штуку баксов, 10 обезьянок. Превед медвед!");
+            var tokens = eng.Tokenize(sentenses[0], Languages.RUSSIAN_LANGUAGE);
+            string agg = tokens.Aggregate((s, s1) => s + ' ' + s1);
+            var lemmatized = lemmatizer.LemmatizeSentense(agg);
             int cnt = GrammarApi.sol_CountEntries(eng.GetEngineHandle());
         }
     }
