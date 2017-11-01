@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GrammarEngineApi", "GrammarEngineApi\GrammarEngineApi.csproj", "{6D8DB26B-783B-41D0-A218-1BE0C72ADC23}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrammarEngineApi", "GrammarEngineApi\GrammarEngineApi.csproj", "{9C0BC4E8-8F1E-48DB-92C0-A0740C7F5661}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GrammarTest", "GrammarTest\GrammarTest.csproj", "{CF98E363-3535-4D9D-8ABC-6E292E335C13}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrammarTest", "GrammarTest\GrammarTest.csproj", "{BDDCA789-203B-4002-84E5-8D1EC6092BC4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,14 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{6D8DB26B-783B-41D0-A218-1BE0C72ADC23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6D8DB26B-783B-41D0-A218-1BE0C72ADC23}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6D8DB26B-783B-41D0-A218-1BE0C72ADC23}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6D8DB26B-783B-41D0-A218-1BE0C72ADC23}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CF98E363-3535-4D9D-8ABC-6E292E335C13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CF98E363-3535-4D9D-8ABC-6E292E335C13}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CF98E363-3535-4D9D-8ABC-6E292E335C13}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CF98E363-3535-4D9D-8ABC-6E292E335C13}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C0BC4E8-8F1E-48DB-92C0-A0740C7F5661}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C0BC4E8-8F1E-48DB-92C0-A0740C7F5661}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C0BC4E8-8F1E-48DB-92C0-A0740C7F5661}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C0BC4E8-8F1E-48DB-92C0-A0740C7F5661}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BDDCA789-203B-4002-84E5-8D1EC6092BC4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BDDCA789-203B-4002-84E5-8D1EC6092BC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BDDCA789-203B-4002-84E5-8D1EC6092BC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BDDCA789-203B-4002-84E5-8D1EC6092BC4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

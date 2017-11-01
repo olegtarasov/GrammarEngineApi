@@ -12,24 +12,24 @@ namespace GrammarEngineApi
     {
         private readonly IntPtr _engine;
 
+        public GrammarEngine()
+        {
+            UnpackResources();
+            _engine = GrammarApi.sol_CreateGrammarEngineW(null);
+        }
+
         public GrammarEngine(IntPtr engine)
         {
             UnpackResources();
             _engine = engine;
+            Initialized = true;
         }
 
         public GrammarEngine(string dictionaryPath)
         {
             UnpackResources();
             _engine = GrammarApi.sol_CreateGrammarEngineW(null);
-            var result = LinuxHandler(() => GrammarApi.sol_LoadDictionary8(_engine, GetUtf8Bytes(dictionaryPath)),
-                () => GrammarApi.sol_LoadDictionaryW(_engine, dictionaryPath));
-
-            if (result != 1)
-            {
-                var err = GetLastError();
-                throw new InvalidOperationException($"Failed to load dictionary from {dictionaryPath}. {err}");
-            }
+            LoadDictionary(dictionaryPath);
         }
 
 #if NETSTANDARD || NETCORE || NETSTANDARD2_0 // должны быть определены в проекте через <DefineConstants>...</DefineConstants>
@@ -38,6 +38,22 @@ namespace GrammarEngineApi
 #else
         public bool IsLinux { get; } = (int)Environment.OSVersion.Platform == 4 || (int)Environment.OSVersion.Platform == 6 || (int)Environment.OSVersion.Platform == 128;
 #endif
+
+        public bool Initialized { get; private set; }
+
+        public void LoadDictionary(string dictionaryPath)
+        {
+            var result = LinuxHandler(() => GrammarApi.sol_LoadDictionary8(_engine, GetUtf8Bytes(dictionaryPath)),
+                () => GrammarApi.sol_LoadDictionaryW(_engine, dictionaryPath));
+
+            if (result != 1)
+            {
+                var err = GetLastError();
+                throw new InvalidOperationException($"Failed to load dictionary from {dictionaryPath}. {err}");
+            }
+
+            Initialized = true;
+        }
 
         public AnalysisResults AnalyzeMorphology(string phrase, Languages language)
         {
