@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
+    <metadata>
+        <id>GrammarEngineApi</id>
+        <version>$version$</version>
+        <title>GrammarEngineApi</title>
+        <authors>Elijah Koziev,Oleg Tarasov</authors>
+        <owners>Elijah Koziev,Oleg Tarasov</owners>
+        <licenseUrl>http://solarix.ru/license/purchase_desktop_search_utility.shtml</licenseUrl>
+        <projectUrl>https://github.com/Koziev/GrammarEngine</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>An extndend version of the original Russian Grammatical Dictionary and Thesaurus C# API from solarix.ru.</description>
+        <releaseNotes />
+        <copyright>Elijah Koziev, Oleg Tarasov</copyright>
+    </metadata>
+    <files>
+        <file src="bin\Release\GrammarEngineApi.dll" target="lib\net\GrammarEngineApi.dll" />
+        <file src="bin\Release\GrammarEngineApi.xml" target="lib\net\GrammarEngineApi.xml" />
+    </files>
+</package>
