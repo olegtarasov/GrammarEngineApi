@@ -6,12 +6,14 @@
         {
             SourceNode = sourceNode;
             LemmatizedEntry = lemmatizedEntry;
-            Word = lemmatizedEntry.Word.ToLower();
+            Word = lemmatizedEntry.EntryExists ? lemmatizedEntry.Word.ToLower() : sourceNode.Word;
+            Lemmatized = lemmatizedEntry.EntryExists;
         }
 
         public SyntaxTreeNode SourceNode { get; }
         public Entry LemmatizedEntry { get;  }
         public string Word { get; }
+        public bool Lemmatized { get; }
 
         public override string ToString()
         {

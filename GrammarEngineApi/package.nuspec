@@ -1,26 +1,19 @@
 <?xml version="1.0"?>
 <package>
   <metadata>
-    <!--*-->
-    <id>$id$</id>
-    <!--*-->
-    <version>1.0.9</version>
+    <id>GrammarEngineApi</id>
+    <version>1.0.10</version>
     <title>
     </title>
-    <!--*-->
-    <authors>$author$</authors>
-    <owners>$author$</owners>
-    <!--
-    <licenseUrl></licenseUrl>
-    <projectUrl></projectUrl>
-    <iconUrl></iconUrl>
--->
+    <authors>Elijah Koziev, Oleg Tarasov</authors>
+    <owners>Elijah Koziev, Oleg Tarasov</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <!--*-->
-    <description>$description$</description>
-    <!--*-->
-    <releaseNotes>.</releaseNotes>
-    <copyright>$copyright$</copyright>
+    <description>An extndend version of the original Russian Grammatical Dictionary and Thesaurus C# API from solarix.ru.</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Elijah Koziev, Oleg Tarasov</copyright>
+    <PackageLicenseUrl>http://solarix.ru/license/purchase_desktop_search_utility.shtml</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/Koziev/GrammarEngine</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/total-world-domination/GrammarEngineApi</RepositoryUrl>
     <tags>
     </tags>
     <dependencies>
