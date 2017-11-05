@@ -12,9 +12,16 @@
         <description>An extndend version of the original Russian Grammatical Dictionary and Thesaurus C# API from solarix.ru.</description>
         <releaseNotes />
         <copyright>Elijah Koziev, Oleg Tarasov</copyright>
+        <references>
+            <reference file="GrammarEngineApi.dll" />
+        </references>
     </metadata>
     <files>
+        <file src="..\build\GrammarEngineApi.targets" target="build\GrammarEngineApi.targets" />
         <file src="bin\Release\GrammarEngineApi.dll" target="lib\net\GrammarEngineApi.dll" />
         <file src="bin\Release\GrammarEngineApi.xml" target="lib\net\GrammarEngineApi.xml" />
+        <file src="..\lib\libdesr.dll" target="lib\libdesr.dll" />
+        <file src="..\lib\solarix_grammar_engine.dll" target="lib\solarix_grammar_engine.dll" />
+        <file src="..\lib\sqlite.dll" target="lib\sqlite.dll" />
     </files>
 </package>
