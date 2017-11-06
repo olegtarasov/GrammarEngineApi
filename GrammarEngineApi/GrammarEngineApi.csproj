@@ -71,5 +71,14 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\libdesr.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\solarix_grammar_engine.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\sqlite.dll" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
