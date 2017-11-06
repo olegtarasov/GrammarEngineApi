@@ -50,7 +50,7 @@ namespace GrammarEngineApi
     public sealed class GrammarApi
     {
         //private const string gren_dll = "libgren.so";
-        private const string gren_dll = "solarix_grammar_engine";
+        private const string gren_dll = "solarix_grammar_engine.dll";
 
 
         // -----------------------------
