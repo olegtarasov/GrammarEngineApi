@@ -19,10 +19,5 @@
     <files>
         <file src="bin\Release\GrammarEngineApi.dll" target="lib\net\GrammarEngineApi.dll" />
         <file src="bin\Release\GrammarEngineApi.xml" target="lib\net\GrammarEngineApi.xml" />
-        <file src="..\lib\libdesr.dll" target="lib\libdesr.dll" />
-        <file src="..\lib\solarix_grammar_engine.dll" target="lib\solarix_grammar_engine.dll" />
-        <file src="..\lib\sqlite.dll" target="lib\sqlite.dll" />
-        <file src="..\tools\install.ps1" target="tools\install.ps1" />
-        <file src="..\tools\uninstall.ps1" target="tools\uninstall.ps1" />
     </files>
 </package>

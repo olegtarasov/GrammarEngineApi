@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using GrammarEngineApi.Properties;
+using log4net;
 
 namespace GrammarEngineApi
 {
@@ -14,20 +15,20 @@ namespace GrammarEngineApi
 
         public GrammarEngine()
         {
-            UnpackResources();
+            GrammarApi.LoadNativeLibrary();
             _engine = GrammarApi.sol_CreateGrammarEngineW(null);
         }
 
         public GrammarEngine(IntPtr engine)
         {
-            UnpackResources();
+            GrammarApi.LoadNativeLibrary();
             _engine = engine;
             Initialized = true;
         }
 
         public GrammarEngine(string dictionaryPath)
         {
-            UnpackResources();
+            GrammarApi.LoadNativeLibrary();
             _engine = GrammarApi.sol_CreateGrammarEngineW(null);
             LoadDictionary(dictionaryPath);
         }
@@ -412,35 +413,6 @@ namespace GrammarEngineApi
         }
 
         private byte[] GetUtf8Bytes(string input) => Encoding.UTF8.GetBytes(input);
-
-        private void UnpackResources()
-        {
-            string curDir;
-            var ass = Assembly.GetExecutingAssembly().Location;
-            if (string.IsNullOrEmpty(ass))
-            {
-                curDir = Environment.CurrentDirectory;
-            }
-            else
-            {
-                curDir = Path.GetDirectoryName(ass);
-            }
-
-            UnpackFile(curDir, "libdescr.dll", Resources.libdesr);
-            UnpackFile(curDir, "sqlite.dll", Resources.sqlite);
-            UnpackFile(curDir, "solarix_grammar_engine.dll", Resources.solarix_grammar_engine);
-        }
-
-        private void UnpackFile(string curDir, string fileName, byte[] bytes)
-        {
-            var path = !string.IsNullOrEmpty(curDir) ? Path.Combine(curDir, fileName) : fileName;
-            if (File.Exists(path))
-            {
-                return;
-            }
-
-            File.WriteAllBytes(path, bytes);
-        }
 
         private static byte[] GetLexemBuffer8()
         {

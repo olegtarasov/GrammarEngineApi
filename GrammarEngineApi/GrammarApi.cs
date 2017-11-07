@@ -39,8 +39,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using GrammarEngineApi.Properties;
+using log4net;
 
 namespace GrammarEngineApi
 {
@@ -52,6 +56,7 @@ namespace GrammarEngineApi
         //private const string gren_dll = "libgren.so";
         private const string gren_dll = "solarix_grammar_engine.dll";
 
+        private static readonly ILog _log = LogManager.GetLogger(typeof(GrammarEngine));
 
         // -----------------------------
 
@@ -265,8 +270,71 @@ namespace GrammarEngineApi
             return new int[0];
         }
 
+        public static void LoadNativeLibrary()
+        {
+            string dir = UnpackResources();
+            string lib = Path.Combine(dir, "solarix_grammar_engine.dll");
+
+            _log.Info($"Directly loading {lib}...");
+            var result = LoadLibraryEx(lib, IntPtr.Zero, LoadLibraryFlags.LOAD_LIBRARY_SEARCH_APPLICATION_DIR | LoadLibraryFlags.LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LoadLibraryFlags.LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LoadLibraryFlags.LOAD_LIBRARY_SEARCH_SYSTEM32 | LoadLibraryFlags.LOAD_LIBRARY_SEARCH_USER_DIRS);
+            _log.Info(result == IntPtr.Zero ? "FAILED!" : "Success");
+        }
+
+        private static string UnpackResources()
+        {
+            string curDir;
+            var ass = Assembly.GetExecutingAssembly().Location;
+            if (string.IsNullOrEmpty(ass))
+            {
+                curDir = Environment.CurrentDirectory;
+            }
+            else
+            {
+                curDir = Path.GetDirectoryName(ass);
+            }
+
+            _log.Info($"Unpacking native libs to {curDir}");
+
+            UnpackFile(curDir, "libdescr.dll", Resources.libdesr);
+            UnpackFile(curDir, "sqlite.dll", Resources.sqlite);
+            UnpackFile(curDir, "solarix_grammar_engine.dll", Resources.solarix_grammar_engine);
+
+            return curDir;
+        }
+
+        private static void UnpackFile(string curDir, string fileName, byte[] bytes)
+        {
+            var path = !string.IsNullOrEmpty(curDir) ? Path.Combine(curDir, fileName) : fileName;
+            if (File.Exists(path))
+            {
+                return;
+            }
+
+            _log.Info($"{fileName} doesn't exist, unpacking.");
+
+            File.WriteAllBytes(path, bytes);
+        }
 
         #region low-level API for Windows
+
+        [System.Flags]
+        enum LoadLibraryFlags : uint
+        {
+            DONT_RESOLVE_DLL_REFERENCES = 0x00000001,
+            LOAD_IGNORE_CODE_AUTHZ_LEVEL = 0x00000010,
+            LOAD_LIBRARY_AS_DATAFILE = 0x00000002,
+            LOAD_LIBRARY_AS_DATAFILE_EXCLUSIVE = 0x00000040,
+            LOAD_LIBRARY_AS_IMAGE_RESOURCE = 0x00000020,
+            LOAD_LIBRARY_SEARCH_APPLICATION_DIR = 0x00000200,
+            LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000,
+            LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100,
+            LOAD_LIBRARY_SEARCH_SYSTEM32 = 0x00000800,
+            LOAD_LIBRARY_SEARCH_USER_DIRS = 0x00000400,
+            LOAD_WITH_ALTERED_SEARCH_PATH = 0x00000008
+        }
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        static extern IntPtr LoadLibraryEx(string lpFileName, IntPtr hReservedNull, LoadLibraryFlags dwFlags);
 
         /// <summary>
         ///     Создание экземпляра грамматического движка в памяти.
