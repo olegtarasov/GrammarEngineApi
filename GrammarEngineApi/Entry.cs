@@ -16,7 +16,7 @@
 
         public WordClassesRu WordClass => (WordClassesRu)_engine.GetEntryClass(_entryId);
 
-        public bool EntryExists => Word != "???";
+        public bool EntryExists => WordClass != WordClassesRu.UNKNOWN_ENTRIES_CLASS && Word != "???";
 
         public override string ToString()
         {
