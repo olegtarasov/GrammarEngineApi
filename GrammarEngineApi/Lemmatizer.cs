@@ -9,19 +9,19 @@
             _engine = engine;
         }
 
-        public LemmatizedToken[] LemmatizeSentense(string sentense, MorphologyFlags flags = MorphologyFlags.SOL_GREN_MODEL | MorphologyFlags.SOL_GREN_MODEL_ONLY)
+        public LemmatizedSyntaxToken[] LemmatizeSentense(string sentense, MorphologyFlags flags = MorphologyFlags.SOL_GREN_MODEL | MorphologyFlags.SOL_GREN_MODEL_ONLY)
         {
             var res = _engine.AnalyzeMorphology(sentense, Languages.RUSSIAN_LANGUAGE, flags);
             if (res == null || res.Nodes.Count <= 2)
             {
-                return new LemmatizedToken[0];
+                return new LemmatizedSyntaxToken[0];
             }
 
-            var result = new LemmatizedToken[res.Nodes.Count - 2];
+            var result = new LemmatizedSyntaxToken[res.Nodes.Count - 2];
             for (int i = 1; i < res.Nodes.Count - 1; i++)
             {
                 var node = res.Nodes[i];
-                result[i - 1] = new LemmatizedToken(node, node.Entry);
+                result[i - 1] = new LemmatizedSyntaxToken(node);
             }
 
             return result;

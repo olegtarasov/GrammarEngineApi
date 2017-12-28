@@ -32,13 +32,13 @@ namespace GrammarEngineApi
         }
 
         private Entry _entry;
-        public Entry Entry => _entry ?? (_entry = new Entry(_gren, GrammarApi.sol_GetNodeIEntry(_gren.GetEngineHandle(), HNode)));
+        public Entry GrammarEntry => _entry ?? (_entry = new Entry(_gren, GrammarApi.sol_GetNodeIEntry(_gren.GetEngineHandle(), HNode)));
 
         private List<CoordPair> _pairs;
         public IReadOnlyList<CoordPair> Pairs => _pairs ?? (_pairs = GetPairs());
 
         private string _word;
-        public string Word => _word ?? (_word = GetNodeContents(HNode));
+        public string SourceWord => _word ?? (_word = GetNodeContents(HNode));
 
         public int SourcePosition => GrammarApi.sol_GetNodePosition(HNode);
 
@@ -98,7 +98,7 @@ namespace GrammarEngineApi
 
         public override string ToString()
         {
-            return Word;
+            return SourceWord;
         }
 
 

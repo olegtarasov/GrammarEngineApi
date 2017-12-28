@@ -52,7 +52,8 @@
     <Compile Include="Enums.cs" />
     <Compile Include="GrammarApi.cs" />
     <Compile Include="GrammarEngine.cs" />
-    <Compile Include="LemmatizedToken.cs" />
+    <Compile Include="ILemmatizedToken.cs" />
+    <Compile Include="LemmatizedSyntaxToken.cs" />
     <Compile Include="Lemmatizer.cs" />
     <Compile Include="MorphologyFlags.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -61,6 +62,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="SimpleLemmatizedToken.cs" />
     <Compile Include="SyntaxFlags.cs" />
     <Compile Include="SyntaxTreeNode.cs" />
     <Compile Include="TextSegmenter.cs" />
