@@ -7,12 +7,15 @@
     {
         public SimpleLemmatizedToken(string word, bool isLemmatized)
         {
-            Word = word;
+            SourceWord = Word = word;
             IsLemmatized = isLemmatized;
         }
 
         /// <inheritdoc />
         public string Word { get; }
+
+        /// <inheritdoc />
+        public string SourceWord { get; }
 
         /// <inheritdoc />
         public bool IsLemmatized { get; }

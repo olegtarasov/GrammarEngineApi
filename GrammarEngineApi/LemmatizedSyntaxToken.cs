@@ -8,8 +8,6 @@
         internal LemmatizedSyntaxToken(SyntaxTreeNode syntaxNode)
         {
             SyntaxNode = syntaxNode;
-            IsLemmatized = syntaxNode.GrammarEntry.EntryExists;
-            Word = IsLemmatized ? syntaxNode.GrammarEntry.Word.ToLower() : syntaxNode.SourceWord;
         }
 
         /// <summary>
@@ -17,12 +15,14 @@
         /// </summary>
         public SyntaxTreeNode SyntaxNode { get; }
 
+        /// <inheritdoc />
+        public string Word => IsLemmatized ? SyntaxNode.GrammarEntry.Word.ToLower() : SyntaxNode.SourceWord;
 
         /// <inheritdoc />
-        public string Word { get; }
+        public string SourceWord => SyntaxNode.SourceWord;
 
         /// <inheritdoc />
-        public bool IsLemmatized { get; }
+        public bool IsLemmatized => SyntaxNode.GrammarEntry.EntryExists;
 
         public override string ToString()
         {

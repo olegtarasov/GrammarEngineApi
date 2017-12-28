@@ -12,6 +12,11 @@
         string Word { get; }
 
         /// <summary>
+        /// Always returns source word.
+        /// </summary>
+        string SourceWord { get; }
+
+        /// <summary>
         /// Indicates whether source word was lemmatized.
         /// </summary>
         bool IsLemmatized { get; }
