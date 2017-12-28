@@ -19,5 +19,10 @@
 
         /// <inheritdoc />
         public bool IsLemmatized { get; }
+
+        public override string ToString()
+        {
+            return Word;
+        }
     }
 }
