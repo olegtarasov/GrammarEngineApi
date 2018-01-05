@@ -57,6 +57,9 @@ namespace GrammarEngineApi
         private const string gren_dll = "solarix_grammar_engine.dll";
 
         private static readonly ILog _log = LogManager.GetLogger(typeof(GrammarEngine));
+        private static readonly object _resourceLocker = new object();
+
+        private static bool _grenLoaded = false;
 
         // -----------------------------
 
@@ -272,12 +275,27 @@ namespace GrammarEngineApi
 
         public static void LoadNativeLibrary()
         {
-            string dir = UnpackResources();
-            string lib = Path.Combine(dir, "solarix_grammar_engine.dll");
+            if (_grenLoaded)
+            {
+                return;
+            }
 
-            _log.Info($"Directly loading {lib}...");
-            var result = LoadLibraryEx(lib, IntPtr.Zero, LoadLibraryFlags.LOAD_LIBRARY_SEARCH_APPLICATION_DIR | LoadLibraryFlags.LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LoadLibraryFlags.LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LoadLibraryFlags.LOAD_LIBRARY_SEARCH_SYSTEM32 | LoadLibraryFlags.LOAD_LIBRARY_SEARCH_USER_DIRS);
-            _log.Info(result == IntPtr.Zero ? "FAILED!" : "Success");
+            lock (_resourceLocker)
+            {
+                if (_grenLoaded)
+                {
+                    return;
+                }
+
+                string dir = UnpackResources();
+                string lib = Path.Combine(dir, "solarix_grammar_engine.dll");
+
+                _log.Info($"Directly loading {lib}...");
+                var result = LoadLibraryEx(lib, IntPtr.Zero, LoadLibraryFlags.LOAD_LIBRARY_SEARCH_APPLICATION_DIR | LoadLibraryFlags.LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LoadLibraryFlags.LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LoadLibraryFlags.LOAD_LIBRARY_SEARCH_SYSTEM32 | LoadLibraryFlags.LOAD_LIBRARY_SEARCH_USER_DIRS);
+                _log.Info(result == IntPtr.Zero ? "FAILED!" : "Success");
+
+                _grenLoaded = true;
+            }
         }
 
         private static string UnpackResources()
@@ -295,7 +313,6 @@ namespace GrammarEngineApi
 
             _log.Info($"Unpacking native libs to {curDir}");
 
-            UnpackFile(curDir, "libdescr.dll", Resources.libdesr);
             UnpackFile(curDir, "sqlite.dll", Resources.sqlite);
             UnpackFile(curDir, "solarix_grammar_engine.dll", Resources.solarix_grammar_engine);
 

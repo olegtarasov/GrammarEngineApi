@@ -58,16 +58,12 @@ namespace GrammarEngineApi
 
         public AnalysisResults AnalyzeMorphology(string phrase, Languages language)
         {
-            var hPack = GrammarApi.sol_MorphologyAnalysis(_engine, phrase, 0, 0, 0, (int)language);
-            var res = new AnalysisResults(this, hPack);
-            return res;
+            return AnalyzeMorphology(phrase, language, MorphologyFlags.DEFAULT, 0);
         }
 
         public AnalysisResults AnalyzeMorphology(string phrase, Languages language, MorphologyFlags flags)
         {
-            var hPack = GrammarApi.sol_MorphologyAnalysis(_engine, phrase, flags, 0, 0, (int)language);
-            var res = new AnalysisResults(this, hPack);
-            return res;
+            return AnalyzeMorphology(phrase, language, flags, 0);
         }
 
         public AnalysisResults AnalyzeMorphology(string phrase, Languages language, MorphologyFlags flags, int constraints)
@@ -80,16 +76,12 @@ namespace GrammarEngineApi
 
         public AnalysisResults AnalyzeSyntax(string phrase, Languages language)
         {
-            var hPack = GrammarApi.sol_SyntaxAnalysis(_engine, phrase, 0, 0, 60000, (int)language);
-            var res = new AnalysisResults(this, hPack);
-            return res;
+            return AnalyzeSyntax(phrase, language, MorphologyFlags.DEFAULT, SyntaxFlags.DEFAULT, 0);
         }
 
         public AnalysisResults AnalyzeSyntax(string phrase, Languages language, MorphologyFlags morphFlags, SyntaxFlags syntaxFlags)
         {
-            var hPack = GrammarApi.sol_SyntaxAnalysis(_engine, phrase, morphFlags, syntaxFlags, 60000, (int)language);
-            var res = new AnalysisResults(this, hPack);
-            return res;
+            return AnalyzeSyntax(phrase, language, morphFlags, syntaxFlags, 0);
         }
 
         public AnalysisResults AnalyzeSyntax(string phrase, Languages language, MorphologyFlags morphFlags, SyntaxFlags syntaxFlags, int constraints)

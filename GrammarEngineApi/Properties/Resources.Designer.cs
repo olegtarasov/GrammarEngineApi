@@ -63,16 +63,6 @@ namespace GrammarEngineApi.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] libdesr {
-            get {
-                object obj = ResourceManager.GetObject("libdesr", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
         internal static byte[] solarix_grammar_engine {
             get {
                 object obj = ResourceManager.GetObject("solarix_grammar_engine", resourceCulture);

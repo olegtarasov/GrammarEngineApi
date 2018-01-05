@@ -1,23 +1,20 @@
 ﻿namespace GrammarEngineApi
 {
-    public class CoordPair
+    public struct CoordPair
     {
-        private readonly GrammarEngine _engine;
-
         public readonly int CoordId, StateId;
 
-        public CoordPair(GrammarEngine engine, int coordId, int stateId)
+        public CoordPair(int coordId, int stateId, string coordCode, string stateCode)
         {
             CoordId = coordId;
             StateId = stateId;
-            _engine = engine;
+            CoordCode = coordCode;
+            StateCode = stateCode;
         }
 
-        private string _coordCode;
-        public string CoordCode => _coordCode ?? (_coordCode = _engine.GetCoordName(CoordId));
+        public readonly string CoordCode;
 
-        private string _stateCode;
-        public string StateCode => _stateCode ?? (_stateCode = _engine.GetCoordStateName(CoordId, StateId));
+        public readonly string StateCode;
 
         public override bool Equals(object obj)
         {
