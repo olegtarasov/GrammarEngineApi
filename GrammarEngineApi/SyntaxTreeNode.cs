@@ -1,50 +1,75 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace GrammarEngineApi
 {
     /// <summary>
-    /// 
+    ///     Syntax analysis node.
     /// </summary>
-    /// <remarks>
-    /// Обращаю внимание, что дескриптор hNode НЕ НАДО ОСВОБОЖДАТЬ, поэтому IDisposable не нужен
-    /// </remarks>
-    public class SyntaxTreeNode
+    public class SyntaxTreeNode : ILemmatizedToken
     {
-        public readonly IntPtr HNode;
         private readonly GrammarEngine _gren;
+        private readonly IntPtr _hNode;
 
-        public List<SyntaxTreeNode> Leafs { get; }
+        private Entry _entry;
+
+        private CoordPair[] _pairs;
+
+        private string _word;
 
         public SyntaxTreeNode(GrammarEngine gren, IntPtr hNode)
         {
-            this._gren = gren;
-            this.HNode = hNode;
+            _gren = gren;
+            _hNode = hNode;
 
-            int nleaf = GrammarApi.sol_CountLeafs(this.HNode);
-            Leafs = new List<SyntaxTreeNode>();
+            int nleaf = GrammarApi.sol_CountLeafs(_hNode);
+            Leafs = new SyntaxTreeNode[nleaf];
             for (int i = 0; i < nleaf; ++i)
             {
-                Leafs.Add(new SyntaxTreeNode(this._gren, GrammarApi.sol_GetLeaf(this.HNode, i)));
+                Leafs[i] = new SyntaxTreeNode(_gren, GrammarApi.sol_GetLeaf(_hNode, i));
             }
         }
 
-        private Entry _entry;
-        public Entry GrammarEntry => _entry ?? (_entry = new Entry(_gren, GrammarApi.sol_GetNodeIEntry(_gren.GetEngineHandle(), HNode)));
+        /// <summary>
+        ///     Grammar entry for the current node.
+        /// </summary>
+        public Entry GrammarEntry => _entry ?? (_entry = new Entry(_gren, GrammarApi.sol_GetNodeIEntry(_gren.GetEngineHandle(), _hNode)));
 
-        private List<CoordPair> _pairs;
+        /// <summary>
+        ///     Indicates whether source word was lemmatized.
+        /// </summary>
+        public bool IsLemmatized => GrammarEntry.EntryExists;
+
+        /// <summary>
+        ///     Syntax leafs of this node.
+        /// </summary>
+        public SyntaxTreeNode[] Leafs { get; }
+
+        /// <summary>
+        ///     Coordinate pairs of this node.
+        /// </summary>
         public IReadOnlyList<CoordPair> Pairs => _pairs ?? (_pairs = GetPairs());
 
-        private string _word;
-        public string SourceWord => _word ?? (_word = GetNodeContents(HNode));
+        /// <summary>
+        ///     The position of this node in a source sentense.
+        /// </summary>
+        public int SourcePosition => GrammarApi.sol_GetNodePosition(_hNode);
 
-        public int SourcePosition => GrammarApi.sol_GetNodePosition(HNode);
+        /// <summary>
+        ///     Always returns source word.
+        /// </summary>
+        public string SourceWord => _word ?? (_word = GetNodeContents(_hNode));
 
-        public bool Contains(CoordPair p)
+        /// <summary>
+        ///     Gets lemmatized form of a word if <see cref="ILemmatizedToken.IsLemmatized" /> is <code>true</code> or
+        ///     source word is it's <code>false</code>.
+        /// </summary>
+        public string Word => IsLemmatized ? GrammarEntry.Word.ToLower() : SourceWord;
+
+        public bool ContainsPair(CoordPair p)
         {
-            return GrammarApi.sol_GetNodeCoordPair(HNode, p.CoordId, p.StateId) == 1;
+            return GrammarApi.sol_GetNodeCoordPair(_hNode, p.CoordId, p.StateId) == 1;
         }
 
         public override bool Equals(object obj)
@@ -54,71 +79,69 @@ namespace GrammarEngineApi
                 return false;
             }
 
-            return HNode.Equals(((SyntaxTreeNode)obj).HNode);
+            return _hNode.Equals(((SyntaxTreeNode)obj)._hNode);
         }
 
         public int GetCoordState(int CoordID)
         {
-            return GrammarApi.sol_GetNodeCoordState(HNode, CoordID);
+            return GrammarApi.sol_GetNodeCoordState(_hNode, CoordID);
         }
 
         public override int GetHashCode()
         {
-            return HNode.GetHashCode();
+            return _hNode.GetHashCode();
         }
 
 
         public int GetLinkType(int LeafIndex)
         {
-            return GrammarApi.sol_GetLeafLinkType(HNode, LeafIndex);
-        }
-
-        private List<CoordPair> GetPairs()
-        {
-            List<CoordPair> res = new List<CoordPair>();
-
-            int n = GrammarApi.sol_GetNodePairsCount(HNode);
-            if (n > 0)
-            {
-                for (int i = 0; i < n; ++i)
-                {
-                    var p = new CoordPair(_gren, GrammarApi.sol_GetNodePairCoord(HNode, i),
-                        GrammarApi.sol_GetNodePairState(HNode, i));
-                    res.Add(p);
-                }
-            }
-
-            return res;
+            return GrammarApi.sol_GetLeafLinkType(_hNode, LeafIndex);
         }
 
         public int GetVersionEntryID(int version_index)
         {
-            return GrammarApi.sol_GetNodeVerIEntry(_gren.GetEngineHandle(), HNode, version_index);
+            return GrammarApi.sol_GetNodeVerIEntry(_gren.GetEngineHandle(), _hNode, version_index);
         }
 
         public override string ToString()
         {
-            return SourceWord;
+            return $"{Word} [src: {SourceWord}][{(IsLemmatized ? "L" : "N")}]";
         }
 
 
         public bool VersionContains(int version_index, CoordPair p)
         {
-            return GrammarApi.sol_GetNodeVerCoordPair(HNode, version_index, p.CoordId, p.StateId) == 1;
+            return GrammarApi.sol_GetNodeVerCoordPair(_hNode, version_index, p.CoordId, p.StateId) == 1;
         }
-
 
         // Number of versions of morphological analysis
         public int VersionCount()
         {
-            return GrammarApi.sol_GetNodeVersionCount(_gren.GetEngineHandle(), HNode);
+            return GrammarApi.sol_GetNodeVersionCount(_gren.GetEngineHandle(), _hNode);
         }
 
-        public static string GetNodeContents(IntPtr hNode)
+        private static string GetNodeContents(IntPtr hNode)
         {
             var b = new StringBuilder(32);
             GrammarApi.sol_GetNodeContents(hNode, b);
             return b.ToString();
+        }
+
+        private CoordPair[] GetPairs()
+        {
+            int n = GrammarApi.sol_GetNodePairsCount(_hNode);
+            var res = new CoordPair[n];
+
+            for (int i = 0; i < n; ++i)
+            {
+                int coord = GrammarApi.sol_GetNodePairCoord(_hNode, i);
+                int state = GrammarApi.sol_GetNodePairState(_hNode, i);
+                res[i] = new CoordPair(coord, state,
+                    _gren.GetCoordName(coord),
+                    _gren.GetCoordStateName(coord, state));
+            }
+
+            return res;
         }
     }
 }

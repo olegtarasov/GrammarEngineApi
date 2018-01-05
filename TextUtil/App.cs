@@ -8,21 +8,25 @@ using System.Text;
 using System.Threading.Tasks;
 using CLAP;
 using GrammarEngineApi;
+using log4net;
+
+// Lemmatize -path="C:\_Models\all.1.plain.txt"
 
 namespace TextUtil
 {
     public class App
     {
+        private ILog _log = LogManager.GetLogger(typeof(App));
+
         [Verb]
         public void Lemmatize(string path, [DefaultValue(null)] string outPath = null)
         {
             var locker = new object();
             var jobs = new ConcurrentQueue<NluJob>();
-            int bufferSize = Environment.ProcessorCount * 32;
-            var grammar = new GrammarEngine(ConfigurationManager.AppSettings["GrammarPath"]);
-            var lemmatizer = new Lemmatizer(grammar);
+            var enginePool = new GrammarEnginePool(ConfigurationManager.AppSettings["GrammarPath"]);
+            const int batchSize = 16;
 
-            Console.WriteLine($"Got {Environment.ProcessorCount} threads, buffer is {bufferSize}");
+            _log.Info($"Got {Environment.ProcessorCount} threads");
 
             if (string.IsNullOrEmpty(outPath))
             {
@@ -37,7 +41,7 @@ namespace TextUtil
                 }
             }
 
-            Console.WriteLine($"Writing lemmatized to {outPath}");
+            _log.Info($"Writing lemmatized to {outPath}");
 
             using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
             using (var reader = new StreamReader(stream))
@@ -45,8 +49,8 @@ namespace TextUtil
             {
                 var tracker = new ProgressTracker(stream.Length, 10000);
 
-                Console.WriteLine("Loading initial batch");
-                for (int i = 0; i < bufferSize; i++)
+                _log.Info("Loading initial batch");
+                for (int i = 0; i < Environment.ProcessorCount * batchSize; i++)
                 {
                     string line = reader.ReadLine();
                     if (line == null)
@@ -54,7 +58,7 @@ namespace TextUtil
                         break;
                     }
 
-                    string trimmed = line.Trim().ToLower();
+                    string trimmed = line.Trim();
                     if (string.IsNullOrEmpty(trimmed))
                     {
                         i--;
@@ -65,15 +69,22 @@ namespace TextUtil
                     }
                 }
 
-                while (stream.Position < stream.Length)
+                if (tracker.ShouldReport(stream.Position))
                 {
-                    Parallel.ForEach(jobs, job =>
+                    _log.Info($"Read {((double)stream.Position / stream.Length * 100.0d):F4} %");
+                }
+
+                var processor = new ParallelProcessor<NluJob>(
+                    jobs, batchSize, 
+                    action: job =>
                     {
                         if (job.Type == NluJobType.SplitSentenses)
                         {
                             if (!string.IsNullOrEmpty(job.Line))
                             {
-                                var sentenses = grammar.SplitSentenses(job.Line);
+                                var engine = enginePool.GetInstance();
+                                var sentenses = engine.SplitSentenses(job.Line);
+                                enginePool.ReturnInstance(engine);
                                 if (sentenses.Count > 0)
                                 {
                                     jobs.Enqueue(new NluJob(sentenses));
@@ -89,59 +100,85 @@ namespace TextUtil
                                 for (int sentenseIdx = 0; sentenseIdx < job.Sentenses.Count; sentenseIdx++)
                                 {
                                     string sentense = job.Sentenses[sentenseIdx];
-                                    var lemmatized = lemmatizer.LemmatizeSentense(sentense);
-                                    if (lemmatized.Length > 0)
+                                    var engine = enginePool.GetInstance();
+                                    using (var lemmatized = engine.AnalyzeMorphology(sentense, Languages.RUSSIAN_LANGUAGE, MorphologyFlags.SOL_GREN_MODEL | MorphologyFlags.SOL_GREN_MODEL_ONLY))
                                     {
-                                        for (int tokenIdx = 0; tokenIdx < lemmatized.Length; tokenIdx++)
+                                        if (lemmatized.Nodes.Length > 0)
                                         {
-                                            var item = lemmatized[tokenIdx];
-                                            string word = item.IsLemmatized ? item.Word : "UNKNOWN";
-                                            builder.Append(word).Append(' ');
-                                        }
+                                            for (int tokenIdx = 0; tokenIdx < lemmatized.Nodes.Length; tokenIdx++)
+                                            {
+                                                var item = lemmatized.Nodes[tokenIdx];
+                                                string word = null;
+                                                if (item.GrammarEntry.EntryExists)
+                                                {
+                                                    switch (item.GrammarEntry.WordClass)
+                                                    {
+                                                        case WordClassesRu.NUMBER_CLASS_ru:
+                                                        case WordClassesRu.NUM_WORD_CLASS:
+                                                            word = "NUM";
+                                                            break;
+                                                        case WordClassesRu.PUNCTUATION_class:
+                                                            break;
+                                                        case WordClassesRu.UNKNOWN_ENTRIES_CLASS:
+                                                            word = "UNK";
+                                                            break;
+                                                        default:
+                                                            word = item.Word;
+                                                            break;
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    word = "UNK";
+                                                }
 
-                                        builder.Append('.');
+                                                if (word != null)
+                                                {
+                                                    builder.Append(word).Append(' ');
+                                                }
+                                            }
+                                        }
                                     }
+                                    enginePool.ReturnInstance(engine);
                                 }
 
-                                writer.WriteLine(builder.ToString());
-                                writer.Flush();
+                                if (builder.Length > 0)
+                                {
+                                    writer.WriteLine(builder.ToString());
+                                    writer.Flush();
+                                }
                             }
                         }
-
-                        if (jobs.Count < bufferSize / 2)
+                    },
+                    producer: () =>
+                    {
+                        string line;
+                        lock (locker)
                         {
-                            while (jobs.Count < bufferSize)
-                            {
-                                string line;
-                                lock (locker)
-                                {
-                                    line = reader.ReadLine();
-                                }
-
-                                if (line == null)
-                                {
-                                    break;
-                                }
-
-                                string trimmed = line.Trim().ToLower();
-                                if (!string.IsNullOrEmpty(trimmed))
-                                {
-                                    jobs.Enqueue(new NluJob(trimmed));
-                                }
-                            }
+                            line = reader.ReadLine();
                         }
 
                         if (tracker.ShouldReport(stream.Position))
                         {
-                            Console.WriteLine($"Read {((double)stream.Position / stream.Length * 100.0d):F4} %");
+                            _log.Info($"Read {((double)stream.Position / stream.Length * 100.0d):F4} %");
                         }
-                    });
-                }
+
+                        if (line == null)
+                        {
+                            return new NluJob();
+                        }
+
+                        return new NluJob(line.Trim());
+                    },
+                    canProduce: () => stream.Position < stream.Length/*, numTasks: 1*/);
+
+                processor.Process();
             }
         }
 
         private enum NluJobType
         {
+            None,
             SplitSentenses,
             Lemmatize
         }
@@ -163,6 +200,11 @@ namespace TextUtil
             public NluJobType Type;
             public string Line;
             public List<string> Sentenses;
+
+            public override string ToString()
+            {
+                return $"{Type}";
+            }
         }
     }
 }

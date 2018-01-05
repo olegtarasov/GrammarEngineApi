@@ -36,7 +36,7 @@
         {
             if (current > _nextReport)
             {
-                _nextReport += _reportCount;
+                _nextReport = current / _reportCount + _reportCount;
                 return true;
             }
 

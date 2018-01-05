@@ -3,38 +3,32 @@ using System.Collections.Generic;
 
 namespace GrammarEngineApi
 {
+    /// <summary>
+    /// Morphological or syntax analysis result.
+    /// </summary>
     public class AnalysisResults : IDisposable
     {
-        private readonly AnalysisResultsSafeHandle _hPack; // дескриптор с блоком результатов, его нужно освобождать
-        private readonly List<SyntaxTreeNode> _nodes;
+        private readonly IntPtr _hPack;
+        private readonly SyntaxTreeNode[] _nodes;
+        private readonly object _locker = new object();
 
-        public AnalysisResults(GrammarEngine gren, IntPtr hPack)
+        private bool _disposed = false;
+
+        public AnalysisResults(GrammarEngine gren, IntPtr hPack, bool preserveMarkers = false)
         {
-            _hPack = new AnalysisResultsSafeHandle(hPack);
-            _nodes = new List<SyntaxTreeNode>();
+            _hPack = hPack;
 
-            int n = GrammarApi.sol_CountRoots(_hPack.DangerousGetHandle(), 0);
-            for (int i = 0; i < n; ++i)
+            int n = GrammarApi.sol_CountRoots(_hPack, 0);
+            int offset = preserveMarkers ? 0 : 1;
+            
+            _nodes = new SyntaxTreeNode[n - offset * 2];
+            for (int i = offset; i < n - offset; i++)
             {
-                SyntaxTreeNode node = new SyntaxTreeNode(gren, GrammarApi.sol_GetRoot(_hPack.DangerousGetHandle(), 0, i));
-                _nodes.Add(node);
+                _nodes[i - offset] = new SyntaxTreeNode(gren, GrammarApi.sol_GetRoot(_hPack, 0, i));
             }
         }
 
-        public AnalysisResults(GrammarEngine gren, IntPtr hPack, bool releaseHandle)
-        {
-            _hPack = new AnalysisResultsSafeHandle(hPack, releaseHandle);
-            _nodes = new List<SyntaxTreeNode>();
-
-            int n = GrammarApi.sol_CountRoots(_hPack.DangerousGetHandle(), 0);
-            for (int i = 0; i < n; ++i)
-            {
-                SyntaxTreeNode node = new SyntaxTreeNode(gren, GrammarApi.sol_GetRoot(_hPack.DangerousGetHandle(), 0, i));
-                _nodes.Add(node);
-            }
-        }
-
-        public IReadOnlyList<SyntaxTreeNode> Nodes => _nodes;
+        public SyntaxTreeNode[] Nodes => _nodes;
 
         public void Dispose()
         {
@@ -44,20 +38,26 @@ namespace GrammarEngineApi
 
         public IntPtr GetHandle()
         {
-            return _hPack.GetHandle();
-        }
+            if (_disposed)
+            {
+                throw new ObjectDisposedException("Handle was already freed");
+            }
 
-        public bool IsNull()
-        {
-            return _hPack.GetHandle() == IntPtr.Zero;
+            return _hPack;
         }
 
         //[SecurityPermission(SecurityAction.Demand, UnmanagedCode = true)]
         protected virtual void Dispose(bool disposing)
         {
-            if (_hPack != null && !_hPack.IsInvalid)
+            if (!disposing || _disposed)
             {
-                _hPack.Dispose();
+                return;
+            }
+
+            lock (_locker)
+            {
+                GrammarApi.sol_DeleteResPack(_hPack);
+                _disposed = true;
             }
         }
     }
