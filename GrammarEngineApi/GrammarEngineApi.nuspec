@@ -17,7 +17,7 @@
         </references>
     </metadata>
     <files>
-        <file src="bin\Release\GrammarEngineApi.dll" target="lib\net\GrammarEngineApi.dll" />
-        <file src="bin\Release\GrammarEngineApi.xml" target="lib\net\GrammarEngineApi.xml" />
+        <file src="bin\x64\Release\GrammarEngineApi.dll" target="lib\net\GrammarEngineApi.dll" />
+        <file src="bin\x64\Release\GrammarEngineApi.xml" target="lib\net\GrammarEngineApi.xml" />
     </files>
 </package>
