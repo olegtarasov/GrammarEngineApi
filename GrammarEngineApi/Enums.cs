@@ -2,6 +2,9 @@
 // ReSharper disable UnusedMember.Global
 namespace GrammarEngineApi
 {
+    /// <summary>
+    /// Supported languages.
+    /// </summary>
     public enum Languages
     {
         RUSSIAN_LANGUAGE = 2, // language Russian
@@ -14,10 +17,13 @@ namespace GrammarEngineApi
         THESAURUS_LANGUAGE = 9, // language ThesaurusLanguage
     }
 
+    /// <summary>
+    /// Word classes.
+    /// </summary>
     public enum WordClassesRu
     {
         ///<summary>
-        /// num_word
+        /// Число
         ///</summary>
         NUM_WORD_CLASS = 2,
 

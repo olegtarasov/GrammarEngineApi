@@ -52,7 +52,6 @@
   <ItemGroup>
     <Compile Include="App.cs" />
     <Compile Include="LogHelper.cs" />
-    <Compile Include="ParallelProcessor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProgressTracker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

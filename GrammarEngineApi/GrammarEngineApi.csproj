@@ -46,15 +46,21 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AnalysisResults.cs" />
+    <Compile Include="Api\GrammarApi.cs" />
+    <Compile Include="Api\GrammarApi.Grammar.cs" />
+    <Compile Include="Api\GrammarApi.Legacy.cs" />
+    <Compile Include="Api\GrammarApi.Lemmatizer.cs" />
+    <Compile Include="Api\GrammarApi.LoadLibrary.cs" />
     <Compile Include="CoordPair.cs" />
     <Compile Include="EngineInstanceFlags.cs" />
     <Compile Include="Entry.cs" />
     <Compile Include="Enums.cs" />
-    <Compile Include="GrammarApi.cs" />
     <Compile Include="GrammarEngine.cs" />
     <Compile Include="GrammarEnginePool.cs" />
     <Compile Include="ILemmatizedToken.cs" />
+    <Compile Include="LemmatizerFlags.cs" />
     <Compile Include="MorphologyFlags.cs" />
+    <Compile Include="ParallelProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -64,10 +70,10 @@
     <Compile Include="SimpleLemmatizedToken.cs" />
     <Compile Include="SyntaxFlags.cs" />
     <Compile Include="SyntaxTreeNode.cs" />
-    <Compile Include="TextSegmenter.cs" />
+    <Compile Include="TextFileSegmenter.cs" />
     <Compile Include="ThesaurusLinks.cs" />
     <Compile Include="WordProjections.cs" />
-    <Compile Include="_sg_api.cs" />
+    <Compile Include="Api\_sg_api.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -83,6 +89,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\sqlite.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\lemmatizator.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

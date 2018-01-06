@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Text;
+using GrammarEngineApi.Api;
 
 namespace GrammarEngineApi
 {
-    public class TextSegmenter : IDisposable
+    public class TextFileSegmenter : IDisposable
     {
         private readonly GrammarEngine _gren;
         private IntPtr _hObject;
 
-        public TextSegmenter(GrammarEngine gren, IntPtr hObject)
+        public TextFileSegmenter(GrammarEngine gren, IntPtr hObject)
         {
             _gren = gren;
             _hObject = hObject;

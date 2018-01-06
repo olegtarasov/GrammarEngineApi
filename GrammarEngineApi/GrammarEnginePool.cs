@@ -11,7 +11,7 @@ namespace GrammarEngineApi
         private readonly ConcurrentQueue<GrammarEngine> _engines = new ConcurrentQueue<GrammarEngine>();
 
         /// <summary>
-        /// Ctor
+        /// Ctor.
         /// </summary>
         /// <param name="dictPath">Path to a dictionary.</param>
         public GrammarEnginePool(string dictPath)

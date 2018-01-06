@@ -2,6 +2,9 @@ using System;
 
 namespace GrammarEngineApi
 {
+    /// <summary>
+    /// Syntax analysis flags.
+    /// </summary>
     [Flags]
     public enum SyntaxFlags
     {

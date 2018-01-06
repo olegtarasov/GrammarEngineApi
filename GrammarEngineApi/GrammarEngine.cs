@@ -1,17 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
-using GrammarEngineApi.Properties;
-using log4net;
+using GrammarEngineApi.Api;
 
 namespace GrammarEngineApi
 {
+    /// <summary>
+    ///     Main Grammar Engine and Lemmatizer API.
+    /// </summary>
     public class GrammarEngine : IDisposable
     {
         private readonly IntPtr _engine;
+
+        private IntPtr _lemmatizer;
 
         public GrammarEngine()
         {
@@ -34,7 +37,7 @@ namespace GrammarEngineApi
         }
 
 #if NETSTANDARD || NETCORE || NETSTANDARD2_0 // должны быть определены в проекте через <DefineConstants>...</DefineConstants>
-        // https://github.com/dotnet/corefx/blob/master/src/System.Runtime.InteropServices.RuntimeInformation/ref/System.Runtime.InteropServices.RuntimeInformation.cs
+// https://github.com/dotnet/corefx/blob/master/src/System.Runtime.InteropServices.RuntimeInformation/ref/System.Runtime.InteropServices.RuntimeInformation.cs
         public bool IsLinux { get; } = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 #else
         public bool IsLinux { get; } = (int)Environment.OSVersion.Platform == 4 || (int)Environment.OSVersion.Platform == 6 || (int)Environment.OSVersion.Platform == 128;
@@ -44,17 +47,45 @@ namespace GrammarEngineApi
 
         public void LoadDictionary(string dictionaryPath)
         {
+            string dir = Path.GetDirectoryName(dictionaryPath);
+            if (string.IsNullOrEmpty(dir) || !Directory.Exists(dir))
+            {
+                throw new InvalidOperationException("Dictionary directory not found!");
+            }
+
+            string dicPath = Path.Combine(dir, "dictionary.xml");
+            if (!File.Exists(dicPath))
+            {
+                throw new InvalidOperationException("Dictionary file not found!");
+            }
+
+            string lemPath = Path.Combine(dir, "lemmatizer.db");
+            if (!File.Exists(lemPath))
+            {
+                throw new InvalidOperationException("Lemmatizer database not found!");
+            }
+
             var result = LinuxHandler(() => GrammarApi.sol_LoadDictionary8(_engine, GetUtf8Bytes(dictionaryPath)),
                 () => GrammarApi.sol_LoadDictionaryW(_engine, dictionaryPath));
 
             if (result != 1)
             {
                 var err = GetLastError();
-                throw new InvalidOperationException($"Failed to load dictionary from {dictionaryPath}. {err}");
+                throw new InvalidOperationException($"Failed to load dictionary from {dicPath}. {err}");
+            }
+
+            // TODO: Linux support
+            _lemmatizer = GrammarApi.sol_LoadLemmatizatorW(lemPath, LemmatizerFlags.Default);
+            if (_lemmatizer == IntPtr.Zero)
+            {
+                var err = GetLastError();
+                throw new InvalidOperationException($"Failed to load dictionary from {dicPath}. {err}");
             }
 
             Initialized = true;
         }
+
+        #region Syntax and morphology
 
         public AnalysisResults AnalyzeMorphology(string phrase, Languages language)
         {
@@ -91,6 +122,10 @@ namespace GrammarEngineApi
             return res;
         }
 
+        #endregion
+
+        #region Segmentation
+
         /// <summary>
         ///     Split the string into words and return the list of these words.
         ///     Language-specific rules are used to process dots, hyphens etc.
@@ -121,37 +156,72 @@ namespace GrammarEngineApi
             return tokens;
         }
 
-
-        public int CountCoordStates(int coordId)
+        /// <summary>
+        ///     Split the string into words and return the list of these words
+        ///     in a single string separated with specified character.
+        ///     Language-specific rules are used to process dots, hyphens etc.
+        /// </summary>
+        public string TokenizeWithSeparator(string text, Languages language, char separator = '|')
         {
-            return GrammarApi.sol_CountCoordStates(GetEngineHandle(), coordId);
+            var hTokens = GrammarApi.sol_TokenizeW(_engine, text, (int)language);
+            if (hTokens == IntPtr.Zero)
+            {
+                string err = GetLastError();
+                return string.Empty;
+            }
+
+            var result = new StringBuilder(text.Length);
+            int maxWordLen = GrammarApi.sol_MaxLexemLen(_engine) + 1;
+            int ntoken = GrammarApi.sol_CountStrings(hTokens);
+            
+            var buffer = new StringBuilder(maxWordLen);
+            for (var i = 0; i < ntoken; ++i)
+            {
+                buffer.Length = 0;
+                GrammarApi.sol_GetStringW(hTokens, i, buffer);
+                result.Append(buffer.ToString()).Append(separator);
+            }
+
+            result.Length--;
+            GrammarApi.sol_DeleteStrings(hTokens);
+
+            return result.ToString();
         }
 
-        public int CountWordEntries()
+        public List<string> SplitSentenses(string input)
         {
-            return GrammarApi.sol_CountEntries(_engine);
+            var broker = GrammarApi.sol_CreateSentenceBrokerMemW(_engine, input, (int)Languages.RUSSIAN_LANGUAGE);
+            var result = new List<string>();
+
+            int len;
+            while ((len = GrammarApi.sol_FetchSentence(broker)) >= 0)
+            {
+                if (len > 0)
+                {
+                    var b = new StringBuilder(len + 2);
+                    GrammarApi.sol_GetFetchedSentence(broker, b);
+                    result.Add(b.ToString());
+                }
+            }
+
+            GrammarApi.sol_DeleteSentenceBroker(broker);
+
+            return result;
         }
 
-        public void Dispose()
+        public TextFileSegmenter GetTextFileSegmenter(string filePath, string encoding, int languageId)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            var h = GrammarApi.sol_CreateSentenceBroker(GetEngineHandle(), filePath, encoding, languageId);
+            return new TextFileSegmenter(this, h);
         }
 
-        public int FindCoord(string coordName)
-        {
-            return GrammarApi.sol_FindEnum(_engine, coordName);
-        }
+        #endregion
 
+        #region Entries
 
         public int FindEntry(string entryName, int partOfSpeech)
         {
             return GrammarApi.sol_FindEntry(_engine, entryName, partOfSpeech, -1);
-        }
-
-        public int FindPartOfSpeech(string partOfSpeechName)
-        {
-            return GrammarApi.sol_FindClass(_engine, partOfSpeechName);
         }
 
         public int FindPhrase(string phraseText, bool caseSensitive)
@@ -159,9 +229,100 @@ namespace GrammarEngineApi
             return GrammarApi.sol_FindPhrase(_engine, phraseText, caseSensitive ? 1 : 0);
         }
 
+        public int CountWordEntries()
+        {
+            return GrammarApi.sol_CountEntries(_engine);
+        }
+
+        public int GetEntryClass(int idEntry)
+        {
+            return GrammarApi.sol_GetEntryClass(_engine, idEntry);
+        }
+
+        public string GetEntryName(int idEntry)
+        {
+            if (IsLinux)
+            {
+                var buf8 = GetLexemBuffer8();
+                GrammarApi.sol_GetEntryName8(_engine, idEntry, buf8);
+                return Utf8ToString(buf8);
+            }
+
+            var b = new StringBuilder(32); // магическая константа 32 - фактически сейчас слов длиннее 32 символов в словарях нет.
+            GrammarApi.sol_GetEntryName(_engine, idEntry, b);
+            return b.ToString();
+        }
+
+        public int GetEntryAttrState(int entryId, int coordId)
+        {
+            return GrammarApi.sol_GetEntryCoordState(_engine, entryId, coordId);
+        }
+
+        public string GetPhraseText(int phraseId)
+        {
+            return GrammarApi.sol_GetPhraseTextFX(_engine, phraseId);
+        }
+
+        #endregion
+
+        #region Coordinates and states
+
+        public int CountCoordStates(int coordId)
+        {
+            return GrammarApi.sol_CountCoordStates(GetEngineHandle(), coordId);
+        }
+
+        public int FindCoord(string coordName)
+        {
+            return GrammarApi.sol_FindEnum(_engine, coordName);
+        }
+
         public int FindState(int coordId, string stateName)
         {
             return GrammarApi.sol_FindEnumState(_engine, coordId, stateName);
+        }
+
+        public string GetCoordStateName(int coordId, int stateId)
+        {
+            var b = new StringBuilder(32);
+            GrammarApi.sol_GetCoordStateName(_engine, coordId, stateId, b);
+            return b.ToString();
+        }
+
+        public string GetCoordName(int coordId)
+        {
+            var b = new StringBuilder(32);
+            GrammarApi.sol_GetCoordName(_engine, coordId, b);
+            return b.ToString();
+        }
+
+        public int GetCoordType(int partOfSpeechId, int coordId)
+        {
+            return GrammarApi.sol_GetCoordType(GetEngineHandle(), coordId, partOfSpeechId);
+        }
+
+        #endregion
+
+
+        #region Dictionaries (classes, tags etc)
+
+        public string GetClassName(int partOfSpeechId)
+        {
+            if (IsLinux)
+            {
+                var buf8 = GetLexemBuffer8();
+                GrammarApi.sol_GetClassName8(_engine, partOfSpeechId, buf8);
+                return Utf8ToString(buf8);
+            }
+
+            var b = new StringBuilder(32);
+            GrammarApi.sol_GetClassName(_engine, partOfSpeechId, b);
+            return b.ToString();
+        }
+
+        public int FindPartOfSpeech(string partOfSpeechName)
+        {
+            return GrammarApi.sol_FindClass(_engine, partOfSpeechName);
         }
 
         public int FindTag(string tagName)
@@ -174,7 +335,11 @@ namespace GrammarEngineApi
             return GrammarApi.sol_FindTagValueW(GetEngineHandle(), tagId, valueName);
         }
 
-        public WordProjections FindWordForm(string wordform)
+        #endregion
+
+        #region Word forms and tesaurus
+
+        public WordProjections FindWordForms(string wordform)
         {
             return new WordProjections(_engine, GrammarApi.sol_ProjectWord(_engine, wordform, 0));
         }
@@ -206,90 +371,6 @@ namespace GrammarEngineApi
             return res;
         }
 
-        public string GetClassName(int partOfSpeechId)
-        {
-            if (IsLinux)
-            {
-                var buf8 = GetLexemBuffer8();
-                GrammarApi.sol_GetClassName8(_engine, partOfSpeechId, buf8);
-                return Utf8ToString(buf8);
-            }
-
-            var b = new StringBuilder(32);
-            GrammarApi.sol_GetClassName(_engine, partOfSpeechId, b);
-            return b.ToString();
-        }
-
-        public string GetCoordName(int coordId)
-        {
-            var b = new StringBuilder(32);
-            GrammarApi.sol_GetCoordName(_engine, coordId, b);
-            return b.ToString();
-        }
-
-        public string GetCoordStateName(int coordId, int stateId)
-        {
-            var b = new StringBuilder(32);
-            GrammarApi.sol_GetCoordStateName(_engine, coordId, stateId, b);
-            return b.ToString();
-        }
-
-        public int GetCoordType(int partOfSpeechId, int coordId)
-        {
-            return GrammarApi.sol_GetCoordType(GetEngineHandle(), coordId, partOfSpeechId);
-        }
-
-        public IntPtr GetEngineHandle()
-        {
-            return _engine;
-        }
-
-
-        public int GetEntryAttrState(int entryId, int coordId)
-        {
-            return GrammarApi.sol_GetEntryCoordState(_engine, entryId, coordId);
-        }
-
-
-        public int GetEntryClass(int idEntry)
-        {
-            return GrammarApi.sol_GetEntryClass(_engine, idEntry);
-        }
-
-        public string GetEntryName(int idEntry)
-        {
-            if (IsLinux)
-            {
-                var buf8 = GetLexemBuffer8();
-                GrammarApi.sol_GetEntryName8(_engine, idEntry, buf8);
-                return Utf8ToString(buf8);
-            }
-            var b = new StringBuilder(32); // магическая константа 32 - фактически сейчас слов длиннее 32 символов в словарях нет.
-            GrammarApi.sol_GetEntryName(_engine, idEntry, b);
-            return b.ToString();
-        }
-
-        public List<string> SplitSentenses(string input)
-        {
-            var broker = GrammarApi.sol_CreateSentenceBrokerMemW(_engine, input, (int)Languages.RUSSIAN_LANGUAGE);
-            var result = new List<string>();
-
-            int len;
-            while ((len = GrammarApi.sol_FetchSentence(broker)) >= 0)
-            {
-                if (len > 0)
-                {
-                    var b = new StringBuilder(len + 2);
-                    GrammarApi.sol_GetFetchedSentence(broker, b);
-                    result.Add(b.ToString());
-                }
-            }
-
-            GrammarApi.sol_DeleteSentenceBroker(broker);
-
-            return result;
-        }
-
         public List<int> GetLinks(int idEntry, int linkType)
         {
             var res = new List<int>();
@@ -309,6 +390,7 @@ namespace GrammarEngineApi
 
             return res;
         }
+
 
         public string GetNounForm(int id, int number, int @case)
         {
@@ -349,23 +431,54 @@ namespace GrammarEngineApi
             return res;
         }
 
-        public string GetPhraseText(int phraseId)
-        {
-            return GrammarApi.sol_GetPhraseTextFX(_engine, phraseId);
-        }
-
-        public TextSegmenter GetTextFileSegmenter(string filePath, string encoding, int languageId)
-        {
-            var h = GrammarApi.sol_CreateSentenceBroker(GetEngineHandle(), filePath, encoding, languageId);
-            return new TextSegmenter(this, h);
-        }
-
 
         public ThesaurusLinks ListLinksTxt(int idEntry, int linkCode, int flags)
         {
             var hList = GrammarApi.sol_ListLinksTxt(GetEngineHandle(), idEntry, linkCode, flags);
             return new ThesaurusLinks(GetEngineHandle(), hList);
         }
+
+        #endregion
+
+        #region Lemmatization
+
+        /// <summary>
+        /// Lemmatize sentense. By default expects tokens to be separated by '|'.
+        /// </summary>
+        /// <param name="sentense">Sentense to lemmatize.</param>
+        /// <param name="separator">Token separator.</param>
+        /// <returns>Lemmatized tokens.</returns>
+        public string[] LemmatizeSentense(string sentense, char separator = '|')
+        {
+            if (string.IsNullOrEmpty(sentense))
+            {
+                return new string[0];
+            }
+
+            var lemResult = GrammarApi.sol_LemmatizePhraseW(_lemmatizer, sentense, 0, separator);
+            if (lemResult == IntPtr.Zero)
+            {
+                return new string[0];
+            }
+
+            int lemmaCnt = GrammarApi.sol_CountLemmas(lemResult);
+            var result = new string[lemmaCnt];
+            var buffer = new StringBuilder(120);
+            for (int i = 0; i < lemmaCnt; i++)
+            {
+                GrammarApi.sol_GetLemmaStringW(lemResult, i, buffer, 120);
+                result[i] = buffer.ToString();
+                buffer.Clear();
+            }
+
+            GrammarApi.sol_DeleteLemmas(lemResult);
+
+            return result;
+        }
+
+        #endregion
+
+        #region Misc
 
         public string NormalizePhrase(AnalysisResults linkages)
         {
@@ -387,11 +500,29 @@ namespace GrammarEngineApi
             return GrammarApi.sol_RestoreCasingFX(_engine, word, entryId);
         }
 
+        #endregion
+
+        public IntPtr GetEngineHandle()
+        {
+            return _engine;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
         protected virtual void Dispose(bool disposing)
         {
             if (_engine != IntPtr.Zero)
             {
                 GrammarApi.sol_DeleteGrammarEngine(_engine);
+            }
+
+            if (_lemmatizer != IntPtr.Zero)
+            {
+                GrammarApi.sol_DeleteLemmatizator(_lemmatizer);
             }
         }
 
@@ -401,6 +532,7 @@ namespace GrammarEngineApi
             {
                 return isLinux();
             }
+
             return isOther();
         }
 

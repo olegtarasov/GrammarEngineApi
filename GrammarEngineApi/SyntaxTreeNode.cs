@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using GrammarEngineApi.Api;
 
 namespace GrammarEngineApi
 {
@@ -65,7 +66,7 @@ namespace GrammarEngineApi
         ///     Gets lemmatized form of a word if <see cref="ILemmatizedToken.IsLemmatized" /> is <code>true</code> or
         ///     source word is it's <code>false</code>.
         /// </summary>
-        public string Word => IsLemmatized ? GrammarEntry.Word.ToLower() : SourceWord;
+        public string Word => IsLemmatized ? GrammarEntry.Name.ToLower() : SourceWord;
 
         public bool ContainsPair(CoordPair p)
         {
