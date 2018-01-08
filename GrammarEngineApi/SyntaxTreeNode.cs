@@ -15,14 +15,13 @@ namespace GrammarEngineApi
 
         private CoordPair[] _pairs;
 
-        private string _word;
-
         public SyntaxTreeNode(GrammarEngine gren, IntPtr hNode)
         {
             _gren = gren;
             _hNode = hNode;
 
             GrammarEntry = new Entry(_gren, GrammarApi.sol_GetNodeIEntry(_gren.GetEngineHandle(), _hNode));
+            SourceWord = GetNodeContents(_hNode);
 
             int nleaf = GrammarApi.sol_CountLeafs(_hNode);
             Leafs = new SyntaxTreeNode[nleaf];
@@ -60,7 +59,7 @@ namespace GrammarEngineApi
         /// <summary>
         ///     Always returns source word.
         /// </summary>
-        public string SourceWord => _word ?? (_word = GetNodeContents(_hNode));
+        public string SourceWord { get; }
 
         /// <summary>
         ///     Gets lemmatized form of a word if <see cref="ILemmatizedToken.IsLemmatized" /> is <code>true</code> or
