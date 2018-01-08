@@ -1,44 +1,80 @@
 ﻿using System;
 using System.Text;
+using System.Threading;
 using GrammarEngineApi.Api;
 
 namespace GrammarEngineApi
 {
+    /// <summary>
+    /// Segmenter which splits text file into sentences. No thread synchronization
+    /// is performed.
+    /// </summary>
     public class TextFileSegmenter : IDisposable
     {
-        private readonly GrammarEngine _gren;
-        private IntPtr _hObject;
+        private readonly IntPtr _hObject;
 
-        public TextFileSegmenter(GrammarEngine gren, IntPtr hObject)
+        private bool _disposed = false;
+
+        /// <summary>
+        /// Ctor.
+        /// </summary>
+        /// <param name="hObject">Broker object.</param>
+        internal TextFileSegmenter(IntPtr hObject)
         {
-            _gren = gren;
             _hObject = hObject;
         }
 
+        /// <inheritdoc />
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Reads the next sentence.
+        /// </summary>
+        /// <returns>Sentence or null if reached the end of file.</returns>
         public string ReadSentence()
         {
-            int len;
-            if ((len = GrammarApi.sol_FetchSentence(_hObject)) >= 0)
+            if (_disposed)
             {
-                var b = new StringBuilder(len + 2);
-                GrammarApi.sol_GetFetchedSentence(_hObject, b);
-                return b.ToString();
+                throw new ObjectDisposedException("Segmenter disposed.");
             }
-            return null;
+
+            int len;
+            if ((len = GrammarApi.sol_FetchSentence(_hObject)) < 0)
+            {
+                CanRead = false;
+                return null;
+            }
+
+            if (len == 0)
+            {
+                return string.Empty;
+            }
+
+            var b = new StringBuilder(len + 2);
+            GrammarApi.sol_GetFetchedSentence(_hObject, b);
+            return b.ToString();
         }
 
+        /// <summary>
+        /// Indicates whether last read fetched a sentence so the next read
+        /// might too.
+        /// </summary>
+        public bool CanRead { get; private set; } = true;
+
+        /// <summary>
+        /// Dispose.
+        /// </summary>
         protected virtual void Dispose(bool disposing)
         {
-            if (_hObject != IntPtr.Zero)
+            if (!_disposed)
             {
+                _disposed = true;
+                Interlocked.MemoryBarrier();
                 GrammarApi.sol_DeleteSentenceBroker(_hObject);
-                _hObject = IntPtr.Zero;
             }
         }
     }

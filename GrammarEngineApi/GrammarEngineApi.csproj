@@ -20,16 +20,18 @@
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
-    <DocumentationFile>bin\Release\GrammarEngineApi.xml</DocumentationFile>
+    <DocumentationFile>bin\x64\Release\GrammarEngineApi.xml</DocumentationFile>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
@@ -54,6 +56,7 @@
     <Compile Include="CoordPair.cs" />
     <Compile Include="EngineInstanceFlags.cs" />
     <Compile Include="Entry.cs" />
+    <Compile Include="EntryToken.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="GrammarEngine.cs" />
     <Compile Include="GrammarEnginePool.cs" />
@@ -61,6 +64,7 @@
     <Compile Include="LemmatizerFlags.cs" />
     <Compile Include="MorphologyFlags.cs" />
     <Compile Include="ParallelProcessor.cs" />
+    <Compile Include="ParallelSentenceProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -85,13 +89,11 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\solarix_grammar_engine.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\sqlite.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\lemmatizator.dll" />
+    <Content Include="Resources\boost_date_time-vc141-mt-1_65_1.dll" />
+    <Content Include="Resources\boost_regex-vc141-mt-1_65_1.dll" />
+    <Content Include="Resources\boost_system-vc141-mt-1_65_1.dll" />
+    <Content Include="Resources\solarix_grammar_engine.dll" />
+    <Content Include="Resources\sqlite3.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

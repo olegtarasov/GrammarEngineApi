@@ -14,7 +14,7 @@ namespace GrammarEngineApi
     {
         private readonly IntPtr _engine;
 
-        private IntPtr _lemmatizer;
+        //private IntPtr _lemmatizer;
 
         public GrammarEngine()
         {
@@ -75,12 +75,12 @@ namespace GrammarEngineApi
             }
 
             // TODO: Linux support
-            _lemmatizer = GrammarApi.sol_LoadLemmatizatorW(lemPath, LemmatizerFlags.Default);
-            if (_lemmatizer == IntPtr.Zero)
-            {
-                var err = GetLastError();
-                throw new InvalidOperationException($"Failed to load dictionary from {dicPath}. {err}");
-            }
+            //_lemmatizer = GrammarApi.sol_LoadLemmatizatorW(lemPath, LemmatizerFlags.Default);
+            //if (_lemmatizer == IntPtr.Zero)
+            //{
+            //    var err = GetLastError();
+            //    throw new InvalidOperationException($"Failed to load dictionary from {dicPath}. {err}");
+            //}
 
             Initialized = true;
         }
@@ -130,7 +130,10 @@ namespace GrammarEngineApi
         ///     Split the string into words and return the list of these words.
         ///     Language-specific rules are used to process dots, hyphens etc.
         /// </summary>
-        public string[] Tokenize(string text, Languages language)
+        /// <remarks>
+        /// Works only on pre-segmented sentnces.
+        /// </remarks>
+        public string[] TokenizeSentence(string text, Languages language)
         {
             var hTokens = GrammarApi.sol_TokenizeW(_engine, text, (int)language);
 
@@ -166,7 +169,6 @@ namespace GrammarEngineApi
             var hTokens = GrammarApi.sol_TokenizeW(_engine, text, (int)language);
             if (hTokens == IntPtr.Zero)
             {
-                string err = GetLastError();
                 return string.Empty;
             }
 
@@ -188,7 +190,7 @@ namespace GrammarEngineApi
             return result.ToString();
         }
 
-        public List<string> SplitSentenses(string input)
+        public List<string> SplitSentences(string input)
         {
             var broker = GrammarApi.sol_CreateSentenceBrokerMemW(_engine, input, (int)Languages.RUSSIAN_LANGUAGE);
             var result = new List<string>();
@@ -209,10 +211,22 @@ namespace GrammarEngineApi
             return result;
         }
 
-        public TextFileSegmenter GetTextFileSegmenter(string filePath, string encoding, int languageId)
+        /// <summary>
+        /// Creates a segmenter that reads sentences from a text file.
+        /// </summary>
+        /// <param name="filePath">File path.</param>
+        /// <param name="isUtf8">Indicates whether file has UTF-8 encoding. Unicode assumed otherwise.</param>
+        /// <param name="language">Language to use.</param>
+        /// <returns>Text file segmenter.</returns>
+        public TextFileSegmenter CreateTextFileSegmenter(string filePath, bool isUtf8, Languages language)
         {
-            var h = GrammarApi.sol_CreateSentenceBroker(GetEngineHandle(), filePath, encoding, languageId);
-            return new TextFileSegmenter(this, h);
+            var h = GrammarApi.sol_CreateSentenceBroker(GetEngineHandle(), filePath, isUtf8 ? "utf-8" : "unicode", (int)language);
+            if (h == IntPtr.Zero)
+            {
+                throw new InvalidOperationException("Failed to create the segmenter!");
+            }
+
+            return new TextFileSegmenter(h);
         }
 
         #endregion
@@ -440,43 +454,43 @@ namespace GrammarEngineApi
 
         #endregion
 
-        #region Lemmatization
+        //#region Lemmatization
 
-        /// <summary>
-        /// Lemmatize sentense. By default expects tokens to be separated by '|'.
-        /// </summary>
-        /// <param name="sentense">Sentense to lemmatize.</param>
-        /// <param name="separator">Token separator.</param>
-        /// <returns>Lemmatized tokens.</returns>
-        public string[] LemmatizeSentense(string sentense, char separator = '|')
-        {
-            if (string.IsNullOrEmpty(sentense))
-            {
-                return new string[0];
-            }
+        ///// <summary>
+        ///// Lemmatize sentence. By default expects tokens to be separated by '|'.
+        ///// </summary>
+        ///// <param name="sentence">Sentence to lemmatize.</param>
+        ///// <param name="separator">Token separator.</param>
+        ///// <returns>Lemmatized tokens.</returns>
+        //public string[] LemmatizeSentence(string sentence, char separator = '|')
+        //{
+        //    if (string.IsNullOrEmpty(sentence))
+        //    {
+        //        return new string[0];
+        //    }
 
-            var lemResult = GrammarApi.sol_LemmatizePhraseW(_lemmatizer, sentense, 0, separator);
-            if (lemResult == IntPtr.Zero)
-            {
-                return new string[0];
-            }
+        //    var lemResult = GrammarApi.sol_LemmatizePhraseW(_lemmatizer, sentence, 0, separator);
+        //    if (lemResult == IntPtr.Zero)
+        //    {
+        //        return new string[0];
+        //    }
 
-            int lemmaCnt = GrammarApi.sol_CountLemmas(lemResult);
-            var result = new string[lemmaCnt];
-            var buffer = new StringBuilder(120);
-            for (int i = 0; i < lemmaCnt; i++)
-            {
-                GrammarApi.sol_GetLemmaStringW(lemResult, i, buffer, 120);
-                result[i] = buffer.ToString();
-                buffer.Clear();
-            }
+        //    int lemmaCnt = GrammarApi.sol_CountLemmas(lemResult);
+        //    var result = new string[lemmaCnt];
+        //    var buffer = new StringBuilder(120);
+        //    for (int i = 0; i < lemmaCnt; i++)
+        //    {
+        //        GrammarApi.sol_GetLemmaStringW(lemResult, i, buffer, 120);
+        //        result[i] = buffer.ToString();
+        //        buffer.Clear();
+        //    }
 
-            GrammarApi.sol_DeleteLemmas(lemResult);
+        //    GrammarApi.sol_DeleteLemmas(lemResult);
 
-            return result;
-        }
+        //    return result;
+        //}
 
-        #endregion
+        //#endregion
 
         #region Misc
 
@@ -520,10 +534,10 @@ namespace GrammarEngineApi
                 GrammarApi.sol_DeleteGrammarEngine(_engine);
             }
 
-            if (_lemmatizer != IntPtr.Zero)
-            {
-                GrammarApi.sol_DeleteLemmatizator(_lemmatizer);
-            }
+            //if (_lemmatizer != IntPtr.Zero)
+            //{
+            //    GrammarApi.sol_DeleteLemmatizator(_lemmatizer);
+            //}
         }
 
         private T LinuxHandler<T>(Func<T> isLinux, Func<T> isOther)

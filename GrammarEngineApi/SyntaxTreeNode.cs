@@ -13,8 +13,6 @@ namespace GrammarEngineApi
         private readonly GrammarEngine _gren;
         private readonly IntPtr _hNode;
 
-        private Entry _entry;
-
         private CoordPair[] _pairs;
 
         private string _word;
@@ -23,6 +21,8 @@ namespace GrammarEngineApi
         {
             _gren = gren;
             _hNode = hNode;
+
+            GrammarEntry = new Entry(_gren, GrammarApi.sol_GetNodeIEntry(_gren.GetEngineHandle(), _hNode));
 
             int nleaf = GrammarApi.sol_CountLeafs(_hNode);
             Leafs = new SyntaxTreeNode[nleaf];
@@ -35,7 +35,7 @@ namespace GrammarEngineApi
         /// <summary>
         ///     Grammar entry for the current node.
         /// </summary>
-        public Entry GrammarEntry => _entry ?? (_entry = new Entry(_gren, GrammarApi.sol_GetNodeIEntry(_gren.GetEngineHandle(), _hNode)));
+        public Entry GrammarEntry { get; }
 
         /// <summary>
         ///     Indicates whether source word was lemmatized.
@@ -53,7 +53,7 @@ namespace GrammarEngineApi
         public IReadOnlyList<CoordPair> Pairs => _pairs ?? (_pairs = GetPairs());
 
         /// <summary>
-        ///     The position of this node in a source sentense.
+        ///     The position of this node in a source sentence.
         /// </summary>
         public int SourcePosition => GrammarApi.sol_GetNodePosition(_hNode);
 

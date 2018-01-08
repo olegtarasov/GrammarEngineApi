@@ -30,7 +30,7 @@ namespace GrammarEngineApi.Api
                 string lemLib = Path.Combine(dir, LemDllName);
 
                 LoadLibrary(grenLib);
-                LoadLibrary(lemLib);
+                //LoadLibrary(lemLib);
 
                 _grenLoaded = true;
             }
@@ -58,9 +58,11 @@ namespace GrammarEngineApi.Api
 
             _log.Info($"Unpacking native libs to {curDir}");
 
-            UnpackFile(curDir, "sqlite.dll", Resources.sqlite);
+            UnpackFile(curDir, "sqlite3.dll", Resources.sqlite3);
+            UnpackFile(curDir, "boost_date_time-vc141-mt-1_65_1.dll", Resources.boost_date_time);
+            UnpackFile(curDir, "boost_regex-vc141-mt-1_65_1.dll", Resources.boost_regex);
+            UnpackFile(curDir, "boost_system-vc141-mt-1_65_1.dll", Resources.boost_system);
             UnpackFile(curDir, "solarix_grammar_engine.dll", Resources.solarix_grammar_engine);
-            UnpackFile(curDir, "lemmatizator.dll", Resources.lemmatizator);
 
             return curDir;
         }
@@ -68,12 +70,12 @@ namespace GrammarEngineApi.Api
         private static void UnpackFile(string curDir, string fileName, byte[] bytes)
         {
             var path = !string.IsNullOrEmpty(curDir) ? Path.Combine(curDir, fileName) : fileName;
-            if (File.Exists(path))
-            {
-                return;
-            }
+            //if (File.Exists(path))
+            //{
+            //    return;
+            //}
 
-            _log.Info($"{fileName} doesn't exist, unpacking.");
+            _log.Info($"Unpacking {fileName}.");
 
             File.WriteAllBytes(path, bytes);
         }

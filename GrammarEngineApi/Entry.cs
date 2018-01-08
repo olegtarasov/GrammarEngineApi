@@ -3,7 +3,7 @@
     /// <summary>
     ///     Grammar entry for a word.
     /// </summary>
-    public class Entry
+    public struct Entry
     {
         private readonly GrammarEngine _engine;
         private readonly int _entryId;
@@ -19,6 +19,9 @@
         {
             _engine = engine;
             _entryId = entryId;
+
+            WordClass = (WordClassesRu)_engine.GetEntryClass(_entryId);
+            _word = null;
         }
 
         /// <summary>
@@ -34,7 +37,7 @@
         /// <summary>
         /// Word class.
         /// </summary>
-        public WordClassesRu WordClass => (WordClassesRu)_engine.GetEntryClass(_entryId);
+        public WordClassesRu WordClass { get; }
 
         public override string ToString()
         {

@@ -20,6 +20,12 @@ namespace GrammarEngineApi
             _hPack = hPack;
 
             int n = GrammarApi.sol_CountRoots(_hPack, 0);
+            if (n == 0)
+            {
+                _nodes = new SyntaxTreeNode[0];
+                return;
+            }
+
             int offset = preserveMarkers ? 0 : 1;
             
             _nodes = new SyntaxTreeNode[n - offset * 2];

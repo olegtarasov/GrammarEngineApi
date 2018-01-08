@@ -63,9 +63,29 @@ namespace GrammarEngineApi.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] lemmatizator {
+        internal static byte[] boost_date_time {
             get {
-                object obj = ResourceManager.GetObject("lemmatizator", resourceCulture);
+                object obj = ResourceManager.GetObject("boost_date_time", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] boost_regex {
+            get {
+                object obj = ResourceManager.GetObject("boost_regex", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] boost_system {
+            get {
+                object obj = ResourceManager.GetObject("boost_system", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -83,9 +103,9 @@ namespace GrammarEngineApi.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] sqlite {
+        internal static byte[] sqlite3 {
             get {
-                object obj = ResourceManager.GetObject("sqlite", resourceCulture);
+                object obj = ResourceManager.GetObject("sqlite3", resourceCulture);
                 return ((byte[])(obj));
             }
         }
