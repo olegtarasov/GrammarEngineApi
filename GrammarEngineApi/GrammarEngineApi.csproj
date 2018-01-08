@@ -61,7 +61,7 @@
     <Compile Include="Processors\FileProcessor.cs" />
     <Compile Include="GrammarEngine.cs" />
     <Compile Include="GrammarEnginePool.cs" />
-    <Compile Include="ILemmatizedToken.cs" />
+    <Compile Include="IToken.cs" />
     <Compile Include="LemmatizerFlags.cs" />
     <Compile Include="MorphologyFlags.cs" />
     <Compile Include="Processors\ParallelProcessor.cs" />
@@ -72,7 +72,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="SimpleLemmatizedToken.cs" />
+    <Compile Include="SimpleToken.cs" />
     <Compile Include="SyntaxFlags.cs" />
     <Compile Include="SyntaxTreeNode.cs" />
     <Compile Include="TextFileSegmenter.cs" />

@@ -3,13 +3,13 @@
     /// <summary>
     /// Represents a lemmatized token.
     /// </summary>
-    public interface ILemmatizedToken
+    public interface IToken
     {
         /// <summary>
-        /// Gets lemmatized form of a word if <see cref="IsLemmatized"/> is <code>true</code> or
+        /// Gets lemmatized form of a word if <see cref="IsRecognized"/> is <code>true</code> or
         /// source word is it's <code>false</code>.
         /// </summary>
-        string Word { get; }
+        string LemmatizedWord { get; }
 
         /// <summary>
         /// Always returns source word.
@@ -19,6 +19,6 @@
         /// <summary>
         /// Indicates whether source word was lemmatized.
         /// </summary>
-        bool IsLemmatized { get; }
+        bool IsRecognized { get; }
     }
 }

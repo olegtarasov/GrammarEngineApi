@@ -3,26 +3,26 @@
     /// <summary>
     /// Simple token which is not backed by Grammar Engine.
     /// </summary>
-    public class SimpleLemmatizedToken : ILemmatizedToken
+    public class SimpleToken : IToken
     {
-        public SimpleLemmatizedToken(string word, bool isLemmatized)
+        public SimpleToken(string word, bool isRecognized)
         {
-            SourceWord = Word = word;
-            IsLemmatized = isLemmatized;
+            SourceWord = LemmatizedWord = word;
+            IsRecognized = isRecognized;
         }
 
         /// <inheritdoc />
-        public string Word { get; }
+        public string LemmatizedWord { get; }
 
         /// <inheritdoc />
         public string SourceWord { get; }
 
         /// <inheritdoc />
-        public bool IsLemmatized { get; }
+        public bool IsRecognized { get; }
 
         public override string ToString()
         {
-            return Word;
+            return LemmatizedWord;
         }
     }
 }

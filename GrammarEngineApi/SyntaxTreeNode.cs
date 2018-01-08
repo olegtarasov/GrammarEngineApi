@@ -8,7 +8,7 @@ namespace GrammarEngineApi
     /// <summary>
     ///     Syntax analysis node.
     /// </summary>
-    public class SyntaxTreeNode : ILemmatizedToken
+    public class SyntaxTreeNode : IToken
     {
         private readonly GrammarEngine _gren;
         private readonly IntPtr _hNode;
@@ -39,7 +39,7 @@ namespace GrammarEngineApi
         /// <summary>
         ///     Indicates whether source word was lemmatized.
         /// </summary>
-        public bool IsLemmatized => GrammarEntry.EntryExists;
+        public bool IsRecognized => GrammarEntry.EntryExists;
 
         /// <summary>
         ///     Syntax leafs of this node.
@@ -62,10 +62,10 @@ namespace GrammarEngineApi
         public string SourceWord { get; }
 
         /// <summary>
-        ///     Gets lemmatized form of a word if <see cref="ILemmatizedToken.IsLemmatized" /> is <code>true</code> or
+        ///     Gets lemmatized form of a word if <IToken.IsRecognizedIsRecognized" /> is <code>true</code> or
         ///     source word is it's <code>false</code>.
         /// </summary>
-        public string Word => IsLemmatized ? GrammarEntry.Name.ToLower() : SourceWord;
+        public string LemmatizedWord => IsRecognized ? GrammarEntry.Name.ToLower() : SourceWord;
 
         public bool ContainsPair(CoordPair p)
         {
@@ -105,7 +105,7 @@ namespace GrammarEngineApi
 
         public override string ToString()
         {
-            return $"{Word} [src: {SourceWord}][{(IsLemmatized ? "L" : "N")}]";
+            return $"{LemmatizedWord} [src: {SourceWord}][{(IsRecognized ? "L" : "N")}]";
         }
 
 
