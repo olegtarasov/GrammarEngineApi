@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 
-namespace GrammarEngineApi
+namespace GrammarEngineApi.Processors
 {
     /// <summary>
     /// Processes in parallel sentences which are read with

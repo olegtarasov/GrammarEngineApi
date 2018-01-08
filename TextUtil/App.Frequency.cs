@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using CLAP;
 using GrammarEngineApi;
+using GrammarEngineApi.Processors;
 
 namespace TextUtil
 {

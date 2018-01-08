@@ -2,7 +2,7 @@
 using System.IO;
 using log4net;
 
-namespace GrammarEngineApi
+namespace GrammarEngineApi.Processors
 {
     public class FileProcessor<T>
     {

@@ -58,14 +58,14 @@
     <Compile Include="Entry.cs" />
     <Compile Include="EntryToken.cs" />
     <Compile Include="Enums.cs" />
-    <Compile Include="FileProcessor.cs" />
+    <Compile Include="Processors\FileProcessor.cs" />
     <Compile Include="GrammarEngine.cs" />
     <Compile Include="GrammarEnginePool.cs" />
     <Compile Include="ILemmatizedToken.cs" />
     <Compile Include="LemmatizerFlags.cs" />
     <Compile Include="MorphologyFlags.cs" />
-    <Compile Include="ParallelProcessor.cs" />
-    <Compile Include="ParallelSentenceProcessor.cs" />
+    <Compile Include="Processors\ParallelProcessor.cs" />
+    <Compile Include="Processors\ParallelSentenceProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

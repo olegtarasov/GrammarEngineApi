@@ -6,8 +6,7 @@
     public struct Entry
     {
         private readonly GrammarEngine _engine;
-        private readonly int _entryId;
-
+        
         private string _word;
 
         /// <summary>
@@ -18,11 +17,16 @@
         public Entry(GrammarEngine engine, int entryId)
         {
             _engine = engine;
-            _entryId = entryId;
+            Id = entryId;
 
-            WordClass = (WordClassesRu)_engine.GetEntryClass(_entryId);
+            WordClass = (WordClassesRu)_engine.GetEntryClass(entryId);
             _word = null;
         }
+
+        /// <summary>
+        /// Entry id.
+        /// </summary>
+        public int Id { get; }
 
         /// <summary>
         /// Indicates whether an entry exists.
@@ -32,7 +36,7 @@
         /// <summary>
         /// Entry name, which is usually a canonical form of the word.
         /// </summary>
-        public string Name => _word ?? (_word = _engine.GetEntryName(_entryId));
+        public string Name => _word ?? (_word = _engine.GetEntryName(Id));
 
         /// <summary>
         /// Word class.

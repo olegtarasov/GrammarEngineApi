@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace GrammarEngineApi
+namespace GrammarEngineApi.Processors
 {
     /// <summary>
     ///     Processes jobs in parallel trying to utilize all available
