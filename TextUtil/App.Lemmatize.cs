@@ -14,6 +14,7 @@ namespace TextUtil
         [Verb]
         public void Lemmatize(string path, [DefaultValue(null)] string outPath = null)
         {
+            var locker = new object();
             var enginePool = new GrammarEnginePool(ConfigurationManager.AppSettings["GrammarPath"]);
             const int batchSize = 16;
 
@@ -89,8 +90,11 @@ namespace TextUtil
 
                         if (builder.Length > 0)
                         {
-                            writer.WriteLine(builder.ToString());
-                            writer.Flush();
+                            lock (locker)
+                            {
+                                writer.WriteLine(builder.ToString());
+                                writer.Flush();
+                            }
                         }
                     }/*, numTasks: 1*/);
 
