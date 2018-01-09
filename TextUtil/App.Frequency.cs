@@ -20,17 +20,21 @@ namespace TextUtil
         public void WordFrequency(string path)
         {
             var enginePool = new GrammarEnginePool(ConfigurationManager.AppSettings["GrammarPath"]);
-            var processor = new FileProcessor<Frequency>(path, enginePool, 32,
-                () => new Frequency(),
-                (sentence, frequency) =>
+            var processor = new FileProcessor<Frequency, object>(
+                path, 
+                enginePool, 
+                32,
+                fileContextFactory: file => new Frequency(),
+                sentenceContextFactory: fileContext => null,
+                action: (job, frequency) =>
                 {
-                    if (string.IsNullOrEmpty(sentence))
+                    if (string.IsNullOrEmpty(job.Sentence))
                     {
                         return;
                     }
 
                     var engine = enginePool.GetInstance();
-                    var tokens = engine.TokenizeSentence(sentence, Languages.RUSSIAN_LANGUAGE);
+                    var tokens = engine.TokenizeSentence(job.Sentence, Languages.RUSSIAN_LANGUAGE);
                     for (int i = 0; i < tokens.Length; i++)
                     {
                         string token = tokens[i];
@@ -56,7 +60,7 @@ namespace TextUtil
 
                     enginePool.ReturnInstance(engine);
                 },
-                (file, frequency) =>
+                fileFinalizer: (file, frequency) =>
                 {
                     string dir = Path.Combine(Path.GetDirectoryName(file), "frequency");
                     if (!Directory.Exists(dir))

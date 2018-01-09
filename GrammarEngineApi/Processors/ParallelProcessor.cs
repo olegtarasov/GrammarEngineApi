@@ -9,15 +9,15 @@ namespace GrammarEngineApi.Processors
     ///     Processes jobs in parallel trying to utilize all available
     ///     resources.
     /// </summary>
-    /// <typeparam name="T">Job type.</typeparam>
-    public class ParallelProcessor<T>
+    /// <typeparam name="TJob">Job type.</typeparam>
+    public class ParallelProcessor<TJob>
     {
-        private readonly Action<T> _action;
+        private readonly Action<TJob> _action;
         private readonly int _batchSize;
         private readonly Func<bool> _canProduce;
-        private readonly IProducerConsumerCollection<T> _collection;
+        private readonly IProducerConsumerCollection<TJob> _collection;
         private readonly int _numTasks;
-        private readonly Func<T> _producer;
+        private readonly Func<TJob> _producer;
 
         private readonly Action _taskBody;
         private readonly ConcurrentDictionary<Task, object> _tasks = new ConcurrentDictionary<Task, object>();
@@ -31,7 +31,7 @@ namespace GrammarEngineApi.Processors
         /// <param name="action">Job action.</param>
         /// <param name="producer">New jobs producer.</param>
         /// <param name="canProduce">Function that indicates whether new jobs can be produced.</param>
-        public ParallelProcessor(IProducerConsumerCollection<T> collection, int batchSize, Action<T> action, Func<T> producer, Func<bool> canProduce)
+        public ParallelProcessor(IProducerConsumerCollection<TJob> collection, int batchSize, Action<TJob> action, Func<TJob> producer, Func<bool> canProduce)
             : this(collection, batchSize, action, producer, canProduce, Environment.ProcessorCount)
         {
         }
@@ -45,7 +45,7 @@ namespace GrammarEngineApi.Processors
         /// <param name="producer">New jobs producer.</param>
         /// <param name="canProduce">Function that indicates whether new jobs can be produced.</param>
         /// <param name="numTasks">Number of worker tasks.</param>
-        public ParallelProcessor(IProducerConsumerCollection<T> collection, int batchSize, Action<T> action, Func<T> producer, Func<bool> canProduce, int numTasks)
+        public ParallelProcessor(IProducerConsumerCollection<TJob> collection, int batchSize, Action<TJob> action, Func<TJob> producer, Func<bool> canProduce, int numTasks)
         {
             _collection = collection;
             _action = action;

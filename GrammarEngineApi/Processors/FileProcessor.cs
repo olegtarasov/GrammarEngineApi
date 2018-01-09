@@ -4,24 +4,45 @@ using log4net;
 
 namespace GrammarEngineApi.Processors
 {
-    public class FileProcessor<T>
+    public class FileProcessor<TFileContext, TSentenceContext>
     {
-        private static readonly ILog _log = LogManager.GetLogger(typeof(FileProcessor<>));
+        private static readonly ILog _log = LogManager.GetLogger(typeof(FileProcessor<,>));
 
         private readonly string[] _files;
         private readonly GrammarEnginePool _enginePool;
         private readonly int _batchSize;
-        private readonly Action<string, T> _action;
+        private readonly Action<SentenceJob<TSentenceContext>, TFileContext> _action;
         private readonly int _numTasks;
-        private readonly Func<T> _fileContextFactory;
-        private readonly Action<string, T> _fileFinalizer;
+        private readonly Func<string, TFileContext> _fileContextFactory;
+        private readonly Func<TFileContext, TSentenceContext> _sentenceContextFactory;
+        private readonly Action<string, TFileContext> _fileFinalizer;
 
-        public FileProcessor(string path, GrammarEnginePool enginePool, int batchSize, Func<T> fileContextFactory, Action<string, T> action, Action<string, T> fileFinalizer)
-            : this(path, enginePool, batchSize, fileContextFactory, action, fileFinalizer, Environment.ProcessorCount)
+        public FileProcessor(string path, 
+                             GrammarEnginePool enginePool, 
+                             int batchSize, 
+                             Func<string, TFileContext> fileContextFactory, 
+                             Func<TFileContext, TSentenceContext> sentenceContextFactory,
+                             Action<SentenceJob<TSentenceContext>, TFileContext> action, 
+                             Action<string, TFileContext> fileFinalizer)
+            : this(path, 
+                enginePool, 
+                batchSize, 
+                fileContextFactory, 
+                sentenceContextFactory, 
+                action, 
+                fileFinalizer, 
+                Environment.ProcessorCount)
         {
         }
 
-        public FileProcessor(string path, GrammarEnginePool enginePool, int batchSize, Func<T> fileContextFactory, Action<string, T> action, Action<string, T> fileFinalizer, int numTasks)
+        public FileProcessor(string path, 
+                             GrammarEnginePool enginePool, 
+                             int batchSize, 
+                             Func<string, TFileContext> fileContextFactory, 
+                             Func<TFileContext, TSentenceContext> sentenceContextFactory,
+                             Action<SentenceJob<TSentenceContext>, TFileContext> action, 
+                             Action<string, TFileContext> fileFinalizer, 
+                             int numTasks)
         {
             _enginePool = enginePool;
             _batchSize = batchSize;
@@ -29,6 +50,7 @@ namespace GrammarEngineApi.Processors
             _numTasks = numTasks;
             _fileFinalizer = fileFinalizer;
             _fileContextFactory = fileContextFactory;
+            _sentenceContextFactory = sentenceContextFactory;
             _log.Info($"Path to process is: {path}");
             if (File.Exists(path))
             {
@@ -55,13 +77,13 @@ namespace GrammarEngineApi.Processors
             {
                 _log.Info($"Starting to process {file}");
 
-                var context = _fileContextFactory();
+                var context = _fileContextFactory(file);
                 var eng = _enginePool.GetInstance();
                 using (var segmenter = eng.CreateTextFileSegmenter(file, true, Languages.RUSSIAN_LANGUAGE))
                 {
                     _enginePool.ReturnInstance(eng);
 
-                    var processor = new ParallelSentenceProcessor(segmenter, _batchSize, sentence => _action(sentence, context), _numTasks);
+                    var processor = new ParallelSentenceProcessor<TSentenceContext>(segmenter, _batchSize, job => _action(job, context), () => _sentenceContextFactory(context), _numTasks);
                     processor.Process();
                 }
 
