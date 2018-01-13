@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Configuration;
 using System.IO;
 using System.Linq;
@@ -91,6 +92,74 @@ namespace TextUtil
                 });
 
             processor.Process();
+        }
+
+        [Verb]
+        public void AggregateFrequency(string dir)
+        {
+            if (!Directory.Exists(dir))
+            {
+                throw new InvalidOperationException("Directory doesn't exist!");
+            }
+
+            var knownFiles = Directory.GetFiles(dir, "*_known.txt");
+            var unknownFiles = Directory.GetFiles(dir, "*_unknown.txt");
+
+            if (knownFiles.Length == 0 && unknownFiles.Length == 0)
+            {
+                throw new InvalidOperationException("No files to process!");
+            }
+
+            var known = AggregateFiles(knownFiles);
+            var unknown = AggregateFiles(unknownFiles);
+
+            using (var writer = new StreamWriter(Path.Combine(dir, "kwnown_total.txt")))
+            {
+                foreach (var pair in known.OrderByDescending(x => x.Value))
+                {
+                    writer.WriteLine($"{pair.Key};{pair.Value}");
+                }
+            }
+
+            using (var writer = new StreamWriter(Path.Combine(dir, "unkwnown_total.txt")))
+            {
+                foreach (var pair in unknown.OrderByDescending(x => x.Value))
+                {
+                    writer.WriteLine($"{pair.Key};{pair.Value}");
+                }
+            }
+        }
+
+        private ConcurrentDictionary<string, long> AggregateFiles(string[] files)
+        {
+            var result = new ConcurrentDictionary<string, long>();
+
+            foreach (var file in files)
+            {
+                _log.Info($"Processing file {file}");
+
+                using (var reader = new StreamReader(file))
+                {
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        int pos = line.LastIndexOf(';');
+                        if (pos == -1)
+                        {
+                            continue;
+                        }
+
+                        string word = line.Substring(0, pos);
+                        if (!string.IsNullOrEmpty(word)
+                            && long.TryParse(line.Substring(pos + 1), out var num))
+                        {
+                            result.AddOrUpdate(word, num, (s, existing) => existing + num);
+                        }
+                    }
+                }
+            }
+
+            return result;
         }
     }
 }
