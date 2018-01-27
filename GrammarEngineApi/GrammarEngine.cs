@@ -233,6 +233,11 @@ namespace GrammarEngineApi
 
         #region Entries
 
+        public Entry GetEntry(int id)
+        {
+            return new Entry(id, GetEntryName(id), (WordClassesRu)GetEntryClass(id));
+        }
+
         public int FindEntry(string entryName, int partOfSpeech)
         {
             return GrammarApi.sol_FindEntry(_engine, entryName, partOfSpeech, -1);

@@ -14,13 +14,14 @@ namespace GrammarEngineApi
         private readonly IntPtr _hNode;
 
         private CoordPair[] _pairs;
+        private string _lemmatized = null;
 
         public SyntaxTreeNode(GrammarEngine gren, IntPtr hNode)
         {
             _gren = gren;
             _hNode = hNode;
 
-            GrammarEntry = new Entry(_gren, GrammarApi.sol_GetNodeIEntry(_gren.GetEngineHandle(), _hNode));
+            GrammarEntry = gren.GetEntry(GrammarApi.sol_GetNodeIEntry(_gren.GetEngineHandle(), _hNode));
             SourceWord = GetNodeContents(_hNode);
 
             int nleaf = GrammarApi.sol_CountLeafs(_hNode);
@@ -65,7 +66,7 @@ namespace GrammarEngineApi
         ///     Gets lemmatized form of a word if <IToken.IsRecognizedIsRecognized" /> is <code>true</code> or
         ///     source word is it's <code>false</code>.
         /// </summary>
-        public string LemmatizedWord => IsRecognized ? GrammarEntry.Name.ToLower() : SourceWord;
+        public string LemmatizedWord => _lemmatized ?? (_lemmatized = (IsRecognized ? GrammarEntry.Name : SourceWord).ToLower());
 
         public bool ContainsPair(CoordPair p)
         {

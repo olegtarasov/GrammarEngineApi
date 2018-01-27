@@ -47,7 +47,7 @@ namespace TextUtil
                                 continue;
                             }
 
-                            var entry = new Entry(engine, forms.GetEntryKey(0));
+                            var entry = engine.GetEntry(forms.GetEntryKey(0));
                             if (entry.WordClass == WordClassesRu.PUNCTUATION_class
                                 || entry.WordClass == WordClassesRu.NUMBER_CLASS_ru
                                 || entry.WordClass == WordClassesRu.NUM_WORD_CLASS)

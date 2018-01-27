@@ -5,22 +5,17 @@
     /// </summary>
     public struct Entry
     {
-        private readonly GrammarEngine _engine;
-        
-        private string _word;
-
         /// <summary>
         ///     Ctor.
         /// </summary>
-        /// <param name="engine">Grammar engine instance.</param>
         /// <param name="entryId">Entry id.</param>
-        public Entry(GrammarEngine engine, int entryId)
+        /// <param name="name">Entry name.</param>
+        /// <param name="wordClass">Word class.</param>
+        public Entry(int entryId, string name, WordClassesRu wordClass)
         {
-            _engine = engine;
             Id = entryId;
-
-            WordClass = (WordClassesRu)_engine.GetEntryClass(entryId);
-            _word = null;
+            WordClass = wordClass;
+            Name = name;
         }
 
         /// <summary>
@@ -36,7 +31,7 @@
         /// <summary>
         /// Entry name, which is usually a canonical form of the word.
         /// </summary>
-        public string Name => _word ?? (_word = _engine.GetEntryName(Id));
+        public string Name { get; }
 
         /// <summary>
         /// Word class.
