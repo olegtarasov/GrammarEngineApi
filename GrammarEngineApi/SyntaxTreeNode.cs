@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using GrammarEngineApi.Api;
 
@@ -67,6 +68,15 @@ namespace GrammarEngineApi
         ///     source word is it's <code>false</code>.
         /// </summary>
         public string LemmatizedWord => _lemmatized ?? (_lemmatized = (IsRecognized ? GrammarEntry.Name : SourceWord).ToLower());
+
+        /// <summary>
+        /// Saves the entry to a binary stream.
+        /// </summary>
+        public void Save(BinaryWriter writer)
+        {
+            writer.Write(GrammarEntry.Id);
+            writer.Write(SourceWord);
+        }
 
         public bool ContainsPair(CoordPair p)
         {
