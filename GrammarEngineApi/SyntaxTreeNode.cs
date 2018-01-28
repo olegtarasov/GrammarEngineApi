@@ -9,7 +9,7 @@ namespace GrammarEngineApi
     /// <summary>
     ///     Syntax analysis node.
     /// </summary>
-    public class SyntaxTreeNode : IToken
+    public class SyntaxTreeNode : ISaveableToken
     {
         private readonly GrammarEngine _gren;
         private readonly IntPtr _hNode;

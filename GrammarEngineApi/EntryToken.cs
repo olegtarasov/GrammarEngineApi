@@ -5,7 +5,7 @@ namespace GrammarEngineApi
     /// <summary>
     /// A token that holds a source word and has a pointer to a grammar entry.
     /// </summary>
-    public class EntryToken : IToken
+    public class EntryToken : ISaveableToken
     {
         private string _lemmatized = null;
 
