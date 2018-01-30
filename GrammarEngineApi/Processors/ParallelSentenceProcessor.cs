@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace GrammarEngineApi.Processors
 {
@@ -35,13 +36,23 @@ namespace GrammarEngineApi.Processors
         {
         }
 
-        private static Func<SentenceJob<TContext>> GetProducer(TextFileSegmenter segmenter, Func<TContext> contextFunc)
+        private static Func<int, SentenceJob<TContext>[]> GetProducer(TextFileSegmenter segmenter, Func<TContext> contextFunc)
         {
-            return () =>
+            return batchSize =>
             {
                 lock (segmenter)
                 {
-                    return new SentenceJob<TContext>(segmenter.ReadSentence(), contextFunc());
+                    var list = new List<SentenceJob<TContext>>();
+                    for (int i = 0; i < batchSize; i++)
+                    {
+                        string sentence = segmenter.ReadSentence();
+                        if (sentence == null)
+                            break;
+
+                        list.Add(new SentenceJob<TContext>(sentence, contextFunc()));
+                    }
+
+                    return list.ToArray();
                 }
             };
         }

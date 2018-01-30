@@ -110,6 +110,39 @@ namespace TextUtil
         }
 
         [Verb]
+        public void MorphologyTest(string path)
+        {
+            var engine = new GrammarEngine(ConfigurationManager.AppSettings["GrammarPath"]);
+
+            using (var reader = new StreamReader(path))
+            {
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    string trimmed = line.Trim();
+                    if (string.IsNullOrEmpty(trimmed))
+                    {
+                        continue;
+                    }
+
+                    long cnt = 0;
+                    var sentences = engine.SplitSentences(trimmed);
+
+                    foreach (var sentence in sentences)
+                    {
+                        using (var morph = engine.AnalyzeMorphology(sentence, Languages.RUSSIAN_LANGUAGE, MorphologyFlags.SOL_GREN_MODEL | MorphologyFlags.SOL_GREN_MODEL_ONLY))
+                        {
+                            for (int i = 0; i < morph.Nodes.Length; i++)
+                            {
+                                cnt++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        [Verb]
         public void Morphology(string path, [DefaultValue(false)] bool sequential)
         {
             var enginePool = new GrammarEnginePool(ConfigurationManager.AppSettings["GrammarPath"]);

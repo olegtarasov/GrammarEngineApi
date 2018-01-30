@@ -17,7 +17,7 @@ namespace GrammarEngineApi.Processors
         private readonly Func<bool> _canProduce;
         private readonly IProducerConsumerCollection<TJob> _collection;
         private readonly int _numTasks;
-        private readonly Func<TJob> _producer;
+        private readonly Func<int, TJob[]> _producer;
 
         private readonly Action _taskBody;
         private readonly ConcurrentDictionary<Task, object> _tasks = new ConcurrentDictionary<Task, object>();
@@ -31,7 +31,7 @@ namespace GrammarEngineApi.Processors
         /// <param name="action">Job action.</param>
         /// <param name="producer">New jobs producer.</param>
         /// <param name="canProduce">Function that indicates whether new jobs can be produced.</param>
-        public ParallelProcessor(IProducerConsumerCollection<TJob> collection, int batchSize, Action<TJob> action, Func<TJob> producer, Func<bool> canProduce)
+        public ParallelProcessor(IProducerConsumerCollection<TJob> collection, int batchSize, Action<TJob> action, Func<int, TJob[]> producer, Func<bool> canProduce)
             : this(collection, batchSize, action, producer, canProduce, Environment.ProcessorCount)
         {
         }
@@ -45,7 +45,7 @@ namespace GrammarEngineApi.Processors
         /// <param name="producer">New jobs producer.</param>
         /// <param name="canProduce">Function that indicates whether new jobs can be produced.</param>
         /// <param name="numTasks">Number of worker tasks.</param>
-        public ParallelProcessor(IProducerConsumerCollection<TJob> collection, int batchSize, Action<TJob> action, Func<TJob> producer, Func<bool> canProduce, int numTasks)
+        public ParallelProcessor(IProducerConsumerCollection<TJob> collection, int batchSize, Action<TJob> action, Func<int, TJob[]> producer, Func<bool> canProduce, int numTasks)
         {
             _collection = collection;
             _action = action;
@@ -107,7 +107,11 @@ namespace GrammarEngineApi.Processors
             {
                 while (_canProduce() && _collection.Count < full)
                 {
-                    _collection.TryAdd(_producer());
+                    var batch = _producer(_batchSize);
+                    for (int i = 0; i < batch.Length; i++)
+                    {
+                        _collection.TryAdd(batch[i]);
+                    }
                 }
             }
         }
