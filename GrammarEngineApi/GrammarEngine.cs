@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using GrammarEngineApi.Api;
+using log4net;
 
 namespace GrammarEngineApi
 {
@@ -12,6 +13,8 @@ namespace GrammarEngineApi
     /// </summary>
     public class GrammarEngine : IDisposable
     {
+        private static readonly ILog _log = LogManager.GetLogger(typeof(GrammarEngine));
+
         private readonly IntPtr _engine;
 
         //private IntPtr _lemmatizer;
@@ -47,23 +50,25 @@ namespace GrammarEngineApi
 
         public void LoadDictionary(string dictionaryPath)
         {
+            _log.Info($"Loading dictionary from {dictionaryPath}");
+
             string dir = Path.GetDirectoryName(dictionaryPath);
             if (string.IsNullOrEmpty(dir) || !Directory.Exists(dir))
             {
-                throw new InvalidOperationException("Dictionary directory not found!");
+                WarnAndThrow("Dictionary directory not found!");
             }
 
             string dicPath = Path.Combine(dir, "dictionary.xml");
             if (!File.Exists(dicPath))
             {
-                throw new InvalidOperationException("Dictionary file not found!");
+                WarnAndThrow("Dictionary file not found!");
             }
 
-            string lemPath = Path.Combine(dir, "lemmatizer.db");
-            if (!File.Exists(lemPath))
-            {
-                throw new InvalidOperationException("Lemmatizer database not found!");
-            }
+            //string lemPath = Path.Combine(dir, "lemmatizer.db");
+            //if (!File.Exists(lemPath))
+            //{
+            //    throw new InvalidOperationException("Lemmatizer database not found!");
+            //}
 
             var result = LinuxHandler(() => GrammarApi.sol_LoadDictionary8(_engine, GetUtf8Bytes(dictionaryPath)),
                 () => GrammarApi.sol_LoadDictionaryW(_engine, dictionaryPath));
@@ -71,10 +76,9 @@ namespace GrammarEngineApi
             if (result != 1)
             {
                 var err = GetLastError();
-                throw new InvalidOperationException($"Failed to load dictionary from {dicPath}. {err}");
+                WarnAndThrow($"Failed to load dictionary from {dicPath}. {err}");
             }
 
-            // TODO: Linux support
             //_lemmatizer = GrammarApi.sol_LoadLemmatizatorW(lemPath, LemmatizerFlags.Default);
             //if (_lemmatizer == IntPtr.Zero)
             //{
@@ -83,6 +87,14 @@ namespace GrammarEngineApi
             //}
 
             Initialized = true;
+
+            _log.Info("Loaded dictionary.");
+        }
+
+        private void WarnAndThrow(string message)
+        {
+            _log.Warn(message);
+            throw new InvalidOperationException(message);
         }
 
         #region Syntax and morphology
