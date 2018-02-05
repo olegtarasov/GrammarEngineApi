@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Data.SqlClient;
 
 namespace GrammarEngineApi
 {
@@ -7,6 +8,8 @@ namespace GrammarEngineApi
     /// </summary>
     public class GrammarEnginePool
     {
+        private readonly object _locker = new object();
+
         private readonly string _dictPath;
         private readonly ConcurrentQueue<GrammarEngine> _engines = new ConcurrentQueue<GrammarEngine>();
 
@@ -28,7 +31,10 @@ namespace GrammarEngineApi
         {
             if (!_engines.TryDequeue(out var engine))
             {
-                engine = new GrammarEngine(_dictPath);
+                lock (_locker)
+                {
+                    engine = new GrammarEngine(_dictPath);
+                }
             }
 
             return engine;
