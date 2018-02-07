@@ -177,7 +177,7 @@ namespace TextUtil
                         for (int i = 0; i < lemmatized.Nodes.Length; i++)
                         {
                             var node = lemmatized.Nodes[i];
-                            tokens[i] = new Token(node.SourceWord, node.GrammarEntry.Id);
+                            tokens[i] = new Token(node.SourceWord, node.Entry.Id);
                         }
 
                         job.Context.Tokens = tokens;

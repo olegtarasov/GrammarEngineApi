@@ -58,7 +58,7 @@
     <Compile Include="Entry.cs" />
     <Compile Include="EntryToken.cs" />
     <Compile Include="Enums.cs" />
-    <Compile Include="ISaveableToken.cs" />
+    <Compile Include="IEntryToken.cs" />
     <Compile Include="Processors\FileProcessor.cs" />
     <Compile Include="GrammarEngine.cs" />
     <Compile Include="GrammarEnginePool.cs" />

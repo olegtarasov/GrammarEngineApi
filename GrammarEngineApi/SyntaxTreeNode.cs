@@ -9,7 +9,7 @@ namespace GrammarEngineApi
     /// <summary>
     ///     Syntax analysis node.
     /// </summary>
-    public class SyntaxTreeNode : ISaveableToken
+    public class SyntaxTreeNode : IEntryToken
     {
         private readonly GrammarEngine _gren;
         private readonly IntPtr _hNode;
@@ -22,7 +22,7 @@ namespace GrammarEngineApi
             _gren = gren;
             _hNode = hNode;
 
-            GrammarEntry = gren.GetEntry(GrammarApi.sol_GetNodeIEntry(_gren.GetEngineHandle(), _hNode));
+            Entry = gren.GetEntry(GrammarApi.sol_GetNodeIEntry(_gren.GetEngineHandle(), _hNode));
             SourceWord = GetNodeContents(_hNode);
 
             int nleaf = GrammarApi.sol_CountLeafs(_hNode);
@@ -36,12 +36,12 @@ namespace GrammarEngineApi
         /// <summary>
         ///     Grammar entry for the current node.
         /// </summary>
-        public Entry GrammarEntry { get; }
+        public Entry Entry { get; }
 
         /// <summary>
         ///     Indicates whether source word was lemmatized.
         /// </summary>
-        public bool IsRecognized => GrammarEntry.EntryExists;
+        public bool IsRecognized => Entry.EntryExists;
 
         /// <summary>
         ///     Syntax leafs of this node.
@@ -64,17 +64,17 @@ namespace GrammarEngineApi
         public string SourceWord { get; }
 
         /// <summary>
-        ///     Gets lemmatized form of a word if <IToken.IsRecognizedIsRecognized" /> is <code>true</code> or
+        ///     Gets lemmatized form of a word if <IToken.IsRecognized /> is <code>true</code> or
         ///     source word is it's <code>false</code>.
         /// </summary>
-        public string LemmatizedWord => _lemmatized ?? (_lemmatized = (IsRecognized ? GrammarEntry.Name : SourceWord).ToLower());
+        public string LemmatizedWord => _lemmatized ?? (_lemmatized = (IsRecognized ? Entry.Name : SourceWord).ToLower());
 
         /// <summary>
         /// Saves the entry to a binary stream.
         /// </summary>
         public void Save(BinaryWriter writer)
         {
-            writer.Write(GrammarEntry.Id);
+            writer.Write(Entry.Id);
             writer.Write(SourceWord);
         }
 
