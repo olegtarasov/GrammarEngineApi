@@ -1,12 +1,12 @@
 ﻿using System;
 using System.IO;
-using log4net;
+using GrammarEngineApi.Logging;
 
 namespace GrammarEngineApi.Processors
 {
     public class FileProcessor<TFileContext, TSentenceContext>
     {
-        private static readonly ILog _log = LogManager.GetLogger(typeof(FileProcessor<,>));
+        private static readonly ILog _log = LogProvider.GetLogger(typeof(FileProcessor<,>));
 
         private readonly string[] _files;
         private readonly GrammarEnginePool _enginePool;

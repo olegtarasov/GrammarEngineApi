@@ -37,14 +37,7 @@
 // LC->12.09.2017
 // --------------
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Text;
-using GrammarEngineApi.Properties;
-using log4net;
+using GrammarEngineApi.Logging;
 
 namespace GrammarEngineApi.Api
 {
@@ -56,6 +49,6 @@ namespace GrammarEngineApi.Api
         private const string GrenDllName = "solarix_grammar_engine.dll";
         private const string LemDllName = "lemmatizator.dll";
 
-        private static readonly ILog _log = LogManager.GetLogger(typeof(GrammarEngine));
+        private static readonly ILog _log = LogProvider.For<GrammarApi>();
     }
 }

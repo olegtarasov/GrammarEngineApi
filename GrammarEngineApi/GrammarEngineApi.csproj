@@ -34,9 +34,6 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -53,6 +50,7 @@
     <Compile Include="Api\GrammarApi.Legacy.cs" />
     <Compile Include="Api\GrammarApi.Lemmatizer.cs" />
     <Compile Include="Api\GrammarApi.LoadLibrary.cs" />
+    <Compile Include="App_Packages\LibLog.4.2\LibLog.cs" />
     <Compile Include="CoordPair.cs" />
     <Compile Include="EngineInstanceFlags.cs" />
     <Compile Include="Entry.cs" />

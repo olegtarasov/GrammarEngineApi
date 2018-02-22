@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using GrammarEngineApi.Logging;
 using GrammarEngineApi.Properties;
 
 namespace GrammarEngineApi.Api

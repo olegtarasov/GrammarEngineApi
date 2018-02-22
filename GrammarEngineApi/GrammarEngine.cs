@@ -4,7 +4,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using GrammarEngineApi.Api;
-using log4net;
+using GrammarEngineApi.Logging;
 
 namespace GrammarEngineApi
 {
@@ -13,7 +13,7 @@ namespace GrammarEngineApi
     /// </summary>
     public class GrammarEngine : IDisposable
     {
-        private static readonly ILog _log = LogManager.GetLogger(typeof(GrammarEngine));
+        private static readonly ILog _log = LogProvider.For<GrammarEngine>();
 
         private readonly IntPtr _engine;
 
