@@ -119,13 +119,13 @@
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="boost_date_time" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\boost_date_time-vc141-mt-1_65_1.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>..\Resources\boost_date_time-vc141-mt-x64-1_67.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="boost_regex" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\boost_regex-vc141-mt-1_65_1.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>..\Resources\boost_regex-vc141-mt-x64-1_67.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="boost_system" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\boost_system-vc141-mt-1_65_1.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>..\Resources\boost_system-vc141-mt-x64-1_67.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="solarix_grammar_engine" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\solarix_grammar_engine.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>

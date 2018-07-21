@@ -83,17 +83,18 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Resources\boost_date_time-vc141-mt-1_65_1.dll" />
-    <Content Include="Resources\boost_regex-vc141-mt-1_65_1.dll" />
-    <Content Include="Resources\boost_system-vc141-mt-1_65_1.dll" />
+    <Content Include="Resources\boost_date_time-vc141-mt-x64-1_67.dll" />
+    <Content Include="Resources\boost_regex-vc141-mt-x64-1_67.dll" />
+    <Content Include="Resources\boost_system-vc141-mt-x64-1_67.dll" />
     <Content Include="Resources\solarix_grammar_engine.dll" />
     <Content Include="Resources\sqlite3.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
