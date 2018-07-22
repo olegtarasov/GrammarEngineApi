@@ -110,6 +110,39 @@ namespace TextUtil
         }
 
         [Verb]
+        public void Spellcheck([DefaultValue(2)] int maxMiss)
+        {
+            var engine = new GrammarEngine(ConfigurationManager.AppSettings["GrammarPath"]);
+
+            Console.WriteLine("Enter misspelled word to find its forms");
+            while (true)
+            {
+                Console.Write("> ");
+                string line = Console.ReadLine()?.Trim();
+                if (string.IsNullOrEmpty(line))
+                {
+                    break;
+                }
+
+                var proj = engine.ProjectMisspelledWord(line, maxMiss);
+                if (proj.Count == 0)
+                {
+                    Console.WriteLine("Nothing found!");
+                    continue;
+                }
+
+                foreach (var projection in proj)
+                {
+                    Console.WriteLine(projection.Entry.Name);
+                    foreach (var pair in projection.Pairs)
+                    {
+                        Console.WriteLine($"\t{pair.CoordCode}: {pair.StateCode}");
+                    }
+                }
+            }
+        }
+
+        [Verb]
         public void MorphologyTest(string path)
         {
             var engine = new GrammarEngine(ConfigurationManager.AppSettings["GrammarPath"]);

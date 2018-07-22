@@ -47,6 +47,7 @@
     <Compile Include="AnalysisResults.cs" />
     <Compile Include="Api\GrammarApi.cs" />
     <Compile Include="Api\GrammarApi.Grammar.cs" />
+    <Compile Include="Api\GrammarApi.Helpers.cs" />
     <Compile Include="Api\GrammarApi.Legacy.cs" />
     <Compile Include="Api\GrammarApi.Lemmatizer.cs" />
     <Compile Include="Api\GrammarApi.LoadLibrary.cs" />
@@ -76,8 +77,9 @@
     <Compile Include="SyntaxTreeNode.cs" />
     <Compile Include="TextFileSegmenter.cs" />
     <Compile Include="ThesaurusLinks.cs" />
-    <Compile Include="WordProjections.cs" />
+    <Compile Include="ProjectionResults.cs" />
     <Compile Include="Api\_sg_api.cs" />
+    <Compile Include="WordProjection.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -87,14 +89,14 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="Resources\boost_date_time-vc141-mt-x64-1_67.dll" />
     <Content Include="Resources\boost_regex-vc141-mt-x64-1_67.dll" />
     <Content Include="Resources\boost_system-vc141-mt-x64-1_67.dll" />
     <Content Include="Resources\solarix_grammar_engine.dll" />
     <Content Include="Resources\sqlite3.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -315,16 +315,12 @@ namespace GrammarEngineApi
 
         public string GetCoordStateName(int coordId, int stateId)
         {
-            var b = new StringBuilder(32);
-            GrammarApi.sol_GetCoordStateName(_engine, coordId, stateId, b);
-            return b.ToString();
+            return GrammarApi.GetCString(b => GrammarApi.sol_GetCoordStateName(_engine, coordId, stateId, b));
         }
 
         public string GetCoordName(int coordId)
         {
-            var b = new StringBuilder(32);
-            GrammarApi.sol_GetCoordName(_engine, coordId, b);
-            return b.ToString();
+            return GrammarApi.GetCString(b => GrammarApi.sol_GetCoordName(_engine, coordId, b));
         }
 
         public int GetCoordType(int partOfSpeechId, int coordId)
@@ -370,12 +366,15 @@ namespace GrammarEngineApi
 
         #region Word forms and tesaurus
 
-        public WordProjections FindWordForms(string wordform)
+        public ProjectionResults FindWordForms(string wordform)
         {
-            return new WordProjections(_engine, GrammarApi.sol_ProjectWord(_engine, wordform, 0));
+            return new ProjectionResults(this, GrammarApi.sol_ProjectWord(_engine, wordform, 0));
         }
 
-
+        public ProjectionResults ProjectMisspelledWord(string word, int nmaxmiss)
+        {
+            return new ProjectionResults(this, GrammarApi.sol_ProjectMisspelledWord(_engine, word, 0, nmaxmiss));
+        }
         public List<string> GenerateWordforms(int entryId, List<int> coordId, List<int> stateId)
         {
             var npairs = coordId.Count;

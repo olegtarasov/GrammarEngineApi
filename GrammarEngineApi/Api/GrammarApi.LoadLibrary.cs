@@ -60,9 +60,9 @@ namespace GrammarEngineApi.Api
             _log.Info($"Unpacking native libs to {curDir}");
 
             UnpackFile(curDir, "sqlite3.dll", Resources.sqlite3);
-            UnpackFile(curDir, "boost_date_time-vc141-mt-1_65_1.dll", Resources.boost_date_time);
-            UnpackFile(curDir, "boost_regex-vc141-mt-1_65_1.dll", Resources.boost_regex);
-            UnpackFile(curDir, "boost_system-vc141-mt-1_65_1.dll", Resources.boost_system);
+            UnpackFile(curDir, "boost_date_time-vc141-mt-x64-1_67.dll", Resources.boost_date_time);
+            UnpackFile(curDir, "boost_regex-vc141-mt-x64-1_67.dll", Resources.boost_regex);
+            UnpackFile(curDir, "boost_system-vc141-mt-x64-1_67.dll", Resources.boost_system);
             UnpackFile(curDir, "solarix_grammar_engine.dll", Resources.solarix_grammar_engine);
 
             return curDir;
