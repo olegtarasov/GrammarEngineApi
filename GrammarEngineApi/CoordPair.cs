@@ -2,8 +2,6 @@
 {
     public struct CoordPair
     {
-        public readonly int CoordId, StateId;
-
         public CoordPair(int coordId, int stateId, string coordCode, string stateCode)
         {
             CoordId = coordId;
@@ -12,9 +10,13 @@
             StateCode = stateCode;
         }
 
-        public readonly string CoordCode;
+        public int CoordId { get; }
 
-        public readonly string StateCode;
+        public int StateId { get; }
+
+        public string CoordCode { get; }
+
+        public string StateCode { get; }
 
         public override bool Equals(object obj)
         {
