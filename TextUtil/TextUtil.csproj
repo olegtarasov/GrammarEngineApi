@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="App.Compiler.cs" />
     <Compile Include="App.cs" />
     <Compile Include="App.Frequency.cs" />
     <Compile Include="App.Morphology.cs" />

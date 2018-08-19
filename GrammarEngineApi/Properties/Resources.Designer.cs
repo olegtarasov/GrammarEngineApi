@@ -93,9 +93,29 @@ namespace GrammarEngineApi.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] compiler {
+            get {
+                object obj = ResourceManager.GetObject("compiler", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] solarix_grammar_engine {
             get {
                 object obj = ResourceManager.GetObject("solarix_grammar_engine", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] sqlite {
+            get {
+                object obj = ResourceManager.GetObject("sqlite", resourceCulture);
                 return ((byte[])(obj));
             }
         }

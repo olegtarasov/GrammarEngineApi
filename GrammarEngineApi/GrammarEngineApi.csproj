@@ -52,6 +52,7 @@
     <Compile Include="Api\GrammarApi.Lemmatizer.cs" />
     <Compile Include="Api\GrammarApi.LoadLibrary.cs" />
     <Compile Include="App_Packages\LibLog.4.2\LibLog.cs" />
+    <Compile Include="Compiler\DictionaryCompiler.cs" />
     <Compile Include="CoordPair.cs" />
     <Compile Include="EngineInstanceFlags.cs" />
     <Compile Include="Entry.cs" />
@@ -95,7 +96,9 @@
     <Content Include="Resources\boost_date_time-vc141-mt-x64-1_67.dll" />
     <Content Include="Resources\boost_regex-vc141-mt-x64-1_67.dll" />
     <Content Include="Resources\boost_system-vc141-mt-x64-1_67.dll" />
+    <None Include="Resources\compiler.exe" />
     <Content Include="Resources\solarix_grammar_engine.dll" />
+    <None Include="Resources\sqlite.dll" />
     <Content Include="Resources\sqlite3.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

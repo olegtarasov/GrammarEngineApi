@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using GrammarEngineApi.Logging;
 using GrammarEngineApi.Properties;
 
@@ -46,16 +47,8 @@ namespace GrammarEngineApi.Api
 
         private static string UnpackResources()
         {
-            string curDir;
             var ass = Assembly.GetExecutingAssembly().Location;
-            if (string.IsNullOrEmpty(ass))
-            {
-                curDir = Environment.CurrentDirectory;
-            }
-            else
-            {
-                curDir = Path.GetDirectoryName(ass);
-            }
+            string curDir = string.IsNullOrEmpty(ass) ? Environment.CurrentDirectory : Path.GetDirectoryName(ass);
 
             _log.Info($"Unpacking native libs to {curDir}");
 
@@ -64,6 +57,8 @@ namespace GrammarEngineApi.Api
             UnpackFile(curDir, "boost_regex-vc141-mt-x64-1_67.dll", Resources.boost_regex);
             UnpackFile(curDir, "boost_system-vc141-mt-x64-1_67.dll", Resources.boost_system);
             UnpackFile(curDir, "solarix_grammar_engine.dll", Resources.solarix_grammar_engine);
+            UnpackFile(curDir, "sqlite.dll", Resources.sqlite);
+            UnpackFile(curDir, "compiler.exe", Resources.compiler);
 
             return curDir;
         }
@@ -71,10 +66,24 @@ namespace GrammarEngineApi.Api
         private static void UnpackFile(string curDir, string fileName, byte[] bytes)
         {
             var path = !string.IsNullOrEmpty(curDir) ? Path.Combine(curDir, fileName) : fileName;
-            //if (File.Exists(path))
-            //{
-            //    return;
-            //}
+            if (File.Exists(path))
+            {
+                _log.Info($"File {fileName} already exists, computing hashes.");
+                using (var md5 = MD5.Create())
+                {
+                    using (var stream = File.OpenRead(path))
+                    {
+                        string fileHash = BitConverter.ToString(md5.ComputeHash(stream));
+                        string curHash = BitConverter.ToString(md5.ComputeHash(bytes));
+
+                        if (string.Equals(fileHash, curHash))
+                        {
+                            _log.Info($"Hashes are equal, no need to unpack.");
+                            return;
+                        }
+                    }
+                }
+            }
 
             _log.Info($"Unpacking {fileName}.");
 
