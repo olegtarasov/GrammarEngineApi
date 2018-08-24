@@ -90,17 +90,20 @@ namespace GrammarEngineApi.Compiler
                         throw new TaskCanceledException();
                     }
 
-                    using (var stream = new FileStream(logPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                    using (var reader = new StreamReader(stream))
+                    if (File.Exists(logPath))
                     {
-                        stream.Seek(offset, SeekOrigin.Begin);
-                        string log = reader.ReadToEnd();
-                        if (!string.IsNullOrEmpty(log))
+                        using (var stream = new FileStream(logPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                        using (var reader = new StreamReader(stream))
                         {
-                            OnLog(log);
-                        }
+                            stream.Seek(offset, SeekOrigin.Begin);
+                            string log = reader.ReadToEnd();
+                            if (!string.IsNullOrEmpty(log))
+                            {
+                                OnLog(log);
+                            }
 
-                        offset = stream.Position;
+                            offset = stream.Position;
+                        }
                     }
 
                     await Task.Delay(100);
