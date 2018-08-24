@@ -43,6 +43,7 @@ namespace GrammarEngineApi.Compiler
                           {
                               StartInfo = new ProcessStartInfo("compiler.exe", args)
                                           {
+                                              WorkingDirectory = curDir,
                                               CreateNoWindow = true,
                                               RedirectStandardError = true,
                                               StandardErrorEncoding = Encoding.UTF8,
