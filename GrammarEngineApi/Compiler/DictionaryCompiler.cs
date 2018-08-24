@@ -22,23 +22,39 @@ namespace GrammarEngineApi.Compiler
             GrammarApi.LoadNativeLibrary();
         }
 
-        /// <summary>
-        /// Fired when log is updated.
-        /// </summary>
-        public event EventHandler<string> Error;
+        public event EventHandler<string> Log; 
 
         /// <summary>
         /// Compiles binary dictionary from sources to dest path.
         /// </summary>
         /// <param name="sourcePath">Dictionary sources path.</param>
         /// <param name="destPath">Binary destination path.</param>
-        public async Task CompileAsync(string sourcePath, string destPath)
+        /// <param name="cancellationToken">Cancellation token.</param>
+        public async Task CompileAsync(string sourcePath, string destPath, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            string args = $@"-j=2 -optimize -dir=""{sourcePath}"" -outdir=""{destPath}"" -ldsize=3000000 -save_paradigmas -save_prefix_entry_searcher -save_seeker -save_affixes -save_lemmatizer ""{Path.Combine(sourcePath, "version-pro")}"" ""{Path.Combine(sourcePath, "dictionary")}"" -file=""{Path.Combine(sourcePath, "russian-language-only.sol")}"" ""{Path.Combine(sourcePath, "shared-resources")}"" ""{Path.Combine(sourcePath, "russian-lexicon")}"" ""{Path.Combine(sourcePath, "russian-stat")}"" ""{Path.Combine(sourcePath, "common-syntax")}""  ""{Path.Combine(sourcePath, "russian-syntax")}"" ""{Path.Combine(sourcePath, "russian-thesaurus")}"" ""{Path.Combine(sourcePath, "dictionary-russian")}"" ""{Path.Combine(sourcePath, "common_dictionary_xml")}""";
+            await CompileInternal(sourcePath, destPath, cancellationToken, args);
+        }
+
+        /// <summary>
+        /// Compiles AN EMPTY binary dictionary from sources to dest path.
+        /// </summary>
+        /// <param name="sourcePath">Dictionary sources path.</param>
+        /// <param name="destPath">Binary destination path.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        public async Task CompileEmptyAsync(string sourcePath, string destPath, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            string args = $@"-j=2 -optimize -dir=""{sourcePath}"" -outdir=""{destPath}"" -ldsize=10000 -save_prefix_entry_searcher -save_seeker -save_affixes ""{Path.Combine(sourcePath, "version-pro")}"" ""{Path.Combine(sourcePath, "dictionary")}"" ""{Path.Combine(sourcePath, "common_dictionary_xml")}"" ""{Path.Combine(sourcePath, "empty_dictionary_xml")}""";
+            await CompileInternal(sourcePath, destPath, cancellationToken, args);
+        }
+
+        private async Task CompileInternal(string sourcePath, string destPath, CancellationToken cancellationToken, string args)
         {
             var ass = Assembly.GetExecutingAssembly().Location;
             string curDir = string.IsNullOrEmpty(ass) ? Environment.CurrentDirectory : Path.GetDirectoryName(ass);
             string compilerPath = Path.Combine(curDir, "compiler.exe");
-            string args = $@"-j=2 -optimize -dir=""{sourcePath}"" -outdir=""{destPath}"" -ldsize=3000000 -save_paradigmas -save_prefix_entry_searcher -save_seeker -save_affixes -save_lemmatizer ""{Path.Combine(sourcePath, "version-pro")}"" ""{Path.Combine(sourcePath, "dictionary")}"" -file=""{Path.Combine(sourcePath, "russian-language-only.sol")}"" ""{Path.Combine(sourcePath, "shared-resources")}"" ""{Path.Combine(sourcePath, "russian-lexicon")}"" ""{Path.Combine(sourcePath, "russian-stat")}"" ""{Path.Combine(sourcePath, "common-syntax")}""  ""{Path.Combine(sourcePath, "russian-syntax")}"" ""{Path.Combine(sourcePath, "russian-thesaurus")}"" ""{Path.Combine(sourcePath, "dictionary-russian")}"" ""{Path.Combine(sourcePath, "common_dictionary_xml")}""";
-            
+            string logPath = Path.Combine(destPath, "journal");
+
             var process = new Process
                           {
                               StartInfo = new ProcessStartInfo(compilerPath, args)
@@ -51,26 +67,55 @@ namespace GrammarEngineApi.Compiler
                                           },
                           };
 
-            process.ErrorDataReceived += (sender, eventArgs) =>
+            await Task.Run(async () =>
             {
-                if (string.IsNullOrEmpty(eventArgs.Data))
+                var sb = new StringBuilder();
+                process.ErrorDataReceived += (sender, eventArgs) =>
                 {
-                    return;
+                    if (!string.IsNullOrEmpty(eventArgs.Data))
+                    {
+                        sb.AppendLine(eventArgs.Data);
+                    }
+                };
+
+                process.Start();
+                process.BeginErrorReadLine();
+
+                long offset = 0;
+                while (!process.HasExited)
+                {
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        process.Kill();
+                        throw new TaskCanceledException();
+                    }
+
+                    using (var stream = new FileStream(logPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    using (var reader = new StreamReader(stream))
+                    {
+                        stream.Seek(offset, SeekOrigin.Begin);
+                        string log = reader.ReadToEnd();
+                        if (!string.IsNullOrEmpty(log))
+                        {
+                            OnLog(log);
+                        }
+
+                        offset = stream.Position;
+                    }
+
+                    await Task.Delay(100);
                 }
 
-                OnError(eventArgs.Data);
-            };
-
-            process.Start();
-            process.BeginErrorReadLine();
-
-            await Task.Run(() => process.WaitForExit());
+                if (process.ExitCode != 0)
+                {
+                    throw new InvalidOperationException("Compilation failed! Errors are:" + Environment.NewLine + sb.ToString());
+                }
+            });
         }
 
-
-        protected virtual void OnError(string e)
+        protected virtual void OnLog(string e)
         {
-            Error?.Invoke(this, e);
+            Log?.Invoke(this, e);
         }
     }
 }
