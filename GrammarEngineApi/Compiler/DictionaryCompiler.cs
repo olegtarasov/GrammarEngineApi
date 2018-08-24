@@ -36,12 +36,12 @@ namespace GrammarEngineApi.Compiler
         {
             var ass = Assembly.GetExecutingAssembly().Location;
             string curDir = string.IsNullOrEmpty(ass) ? Environment.CurrentDirectory : Path.GetDirectoryName(ass);
+            string compilerPath = Path.Combine(curDir, "compiler.exe");
             string args = $@"-j=2 -optimize -dir=""{sourcePath}"" -outdir=""{destPath}"" -ldsize=3000000 -save_paradigmas -save_prefix_entry_searcher -save_seeker -save_affixes -save_lemmatizer ""{Path.Combine(sourcePath, "version-pro")}"" ""{Path.Combine(sourcePath, "dictionary")}"" -file=""{Path.Combine(sourcePath, "russian-language-only.sol")}"" ""{Path.Combine(sourcePath, "shared-resources")}"" ""{Path.Combine(sourcePath, "russian-lexicon")}"" ""{Path.Combine(sourcePath, "russian-stat")}"" ""{Path.Combine(sourcePath, "common-syntax")}""  ""{Path.Combine(sourcePath, "russian-syntax")}"" ""{Path.Combine(sourcePath, "russian-thesaurus")}"" ""{Path.Combine(sourcePath, "dictionary-russian")}"" ""{Path.Combine(sourcePath, "common_dictionary_xml")}""";
-            string logPath = Path.Combine(destPath, "journal");
-
+            
             var process = new Process
                           {
-                              StartInfo = new ProcessStartInfo("compiler.exe", args)
+                              StartInfo = new ProcessStartInfo(compilerPath, args)
                                           {
                                               WorkingDirectory = curDir,
                                               CreateNoWindow = true,
@@ -53,6 +53,11 @@ namespace GrammarEngineApi.Compiler
 
             process.ErrorDataReceived += (sender, eventArgs) =>
             {
+                if (string.IsNullOrEmpty(eventArgs.Data))
+                {
+                    return;
+                }
+
                 OnError(eventArgs.Data);
             };
 
