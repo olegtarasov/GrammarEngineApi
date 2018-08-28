@@ -33,7 +33,10 @@ namespace GrammarEngineApi
             {
                 lock (_locker)
                 {
-                    engine = new GrammarEngine(_dictPath);
+                    if (!_engines.TryDequeue(out engine))
+                    {
+                        engine = new GrammarEngine(_dictPath);
+                    }
                 }
             }
 

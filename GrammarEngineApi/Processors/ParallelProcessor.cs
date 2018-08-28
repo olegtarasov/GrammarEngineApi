@@ -24,6 +24,19 @@ namespace GrammarEngineApi.Processors
 
         /// <summary>
         ///     Creates a processor with number of worker tasks equal to
+        ///     <see cref="Environment.ProcessorCount" /> and no ability to load
+        ///     new jobs.
+        /// </summary>
+        /// <param name="collection">Jobs collection.</param>
+        /// <param name="batchSize">Maximum job batch size for one thread.</param>
+        /// <param name="action">Job action.</param>
+        public ParallelProcessor(IProducerConsumerCollection<TJob> collection, int batchSize, Action<TJob> action)
+            : this(collection, batchSize, action, sz => Array.Empty<TJob>(), () => false, Environment.ProcessorCount)
+        {
+        }
+
+        /// <summary>
+        ///     Creates a processor with number of worker tasks equal to
         ///     <see cref="Environment.ProcessorCount" />.
         /// </summary>
         /// <param name="collection">Jobs collection.</param>
