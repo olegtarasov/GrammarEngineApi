@@ -1,5 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using System.Data.SqlClient;
 
 namespace GrammarEngineApi
 {

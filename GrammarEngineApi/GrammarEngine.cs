@@ -5,6 +5,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using GrammarEngineApi.Api;
 using GrammarEngineApi.Logging;
+using GrammarEngineApi.Properties;
+using NativeLibraryManager;
 
 namespace GrammarEngineApi
 {
@@ -14,27 +16,40 @@ namespace GrammarEngineApi
     public class GrammarEngine : IDisposable
     {
         private static readonly ILog _log = LogProvider.For<GrammarEngine>();
+        private static readonly List<LibraryManager> _libraryManagers;
 
         private readonly IntPtr _engine;
 
         //private IntPtr _lemmatizer;
 
+        static GrammarEngine()
+        {
+            _libraryManagers = new List<LibraryManager>
+                               {
+                                   new LibraryManager("sqlite3", new LibraryItem("sqlite3.dll", Resources.sqlite3, Platform.Windows, Bitness.x64)),
+                                   new LibraryManager("boost_date_time", new LibraryItem("boost_date_time-vc141-mt-x64-1_68.dll", Resources.boost_date_time, Platform.Windows, Bitness.x64)),
+                                   new LibraryManager("boost_regex", new LibraryItem("boost_regex-vc141-mt-x64-1_68.dll", Resources.boost_regex, Platform.Windows, Bitness.x64)),
+                                   new LibraryManager("boost_system", new LibraryItem("boost_system-vc141-mt-x64-1_68.dll", Resources.boost_system, Platform.Windows, Bitness.x64)),
+                                   new LibraryManager("solarix_grammar_engine", new LibraryItem("solarix_grammar_engine.dll", Resources.solarix_grammar_engine, Platform.Windows, Bitness.x64))
+                               };
+        }
+
         public GrammarEngine()
         {
-            GrammarApi.LoadNativeLibrary();
+            _libraryManagers.ForEach(x => x.LoadNativeLibrary());
             _engine = GrammarApi.sol_CreateGrammarEngineW(null);
         }
 
         public GrammarEngine(IntPtr engine)
         {
-            GrammarApi.LoadNativeLibrary();
+            _libraryManagers.ForEach(x => x.LoadNativeLibrary());
             _engine = engine;
             Initialized = true;
         }
 
         public GrammarEngine(string dictionaryPath)
         {
-            GrammarApi.LoadNativeLibrary();
+            _libraryManagers.ForEach(x => x.LoadNativeLibrary());
             _engine = GrammarApi.sol_CreateGrammarEngineW(null);
             LoadDictionary(dictionaryPath);
         }

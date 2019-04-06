@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -6,6 +7,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using GrammarEngineApi.Api;
+using GrammarEngineApi.Properties;
+using NativeLibraryManager;
 
 namespace GrammarEngineApi.Compiler
 {
@@ -14,12 +17,26 @@ namespace GrammarEngineApi.Compiler
     /// </summary>
     public class DictionaryCompiler
     {
+        private static readonly List<LibraryManager> _libraryManagers;
+
+        static DictionaryCompiler()
+        {
+            _libraryManagers = new List<LibraryManager>
+                               {
+                                   new LibraryManager("sqlite3", new LibraryItem("sqlite3.dll", Resources.sqlite3, Platform.Windows, Bitness.x64)),
+                                   new LibraryManager("boost_date_time", new LibraryItem("boost_date_time-vc141-mt-x64-1_68.dll", Resources.boost_date_time, Platform.Windows, Bitness.x64)),
+                                   new LibraryManager("boost_regex", new LibraryItem("boost_regex-vc141-mt-x64-1_68.dll", Resources.boost_regex, Platform.Windows, Bitness.x64)),
+                                   new LibraryManager("boost_system", new LibraryItem("boost_system-vc141-mt-x64-1_68.dll", Resources.boost_system, Platform.Windows, Bitness.x64)),
+                                   new LibraryManager("compiler", new LibraryItem("compiler.exe", Resources.compiler, Platform.Windows, Bitness.x64))
+                               };
+        }
+
         /// <summary>
         /// Ctor.
         /// </summary>
         public DictionaryCompiler()
         {
-            GrammarApi.LoadNativeLibrary();
+            _libraryManagers.ForEach(x => x.LoadNativeLibrary());
         }
 
         public event EventHandler<string> Log; 
