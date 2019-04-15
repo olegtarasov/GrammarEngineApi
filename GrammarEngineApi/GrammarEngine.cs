@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using GrammarEngineApi.Api;
@@ -16,7 +17,7 @@ namespace GrammarEngineApi
     public class GrammarEngine : IDisposable
     {
         private static readonly ILog _log = LogProvider.For<GrammarEngine>();
-        private static readonly List<LibraryManager> _libraryManagers;
+        private static readonly LibraryManager _libraryManager;
 
         private readonly IntPtr _engine;
 
@@ -24,32 +25,35 @@ namespace GrammarEngineApi
 
         static GrammarEngine()
         {
-            _libraryManagers = new List<LibraryManager>
-                               {
-                                   new LibraryManager("sqlite3", new LibraryItem("sqlite3.dll", Resources.sqlite3, Platform.Windows, Bitness.x64)),
-                                   new LibraryManager("boost_date_time", new LibraryItem("boost_date_time-vc141-mt-x64-1_68.dll", Resources.boost_date_time, Platform.Windows, Bitness.x64)),
-                                   new LibraryManager("boost_regex", new LibraryItem("boost_regex-vc141-mt-x64-1_68.dll", Resources.boost_regex, Platform.Windows, Bitness.x64)),
-                                   new LibraryManager("boost_system", new LibraryItem("boost_system-vc141-mt-x64-1_68.dll", Resources.boost_system, Platform.Windows, Bitness.x64)),
-                                   new LibraryManager("solarix_grammar_engine", new LibraryItem("solarix_grammar_engine.dll", Resources.solarix_grammar_engine, Platform.Windows, Bitness.x64))
-                               };
+            var accessor = new ResourceAccessor();
+            _libraryManager = new LibraryManager(
+                Assembly.GetExecutingAssembly(),
+                new LibraryItem(Platform.MacOs, Bitness.x64,
+                    new LibraryFile(ResourceNamesWindows.Sqlite3, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.Sqlite3))),
+                    new LibraryFile(ResourceNamesWindows.BoostDateTime, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.BoostDateTime))),
+                    new LibraryFile(ResourceNamesWindows.BoostRegex, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.BoostRegex))),
+                    new LibraryFile(ResourceNamesWindows.BoostSystem, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.BoostSystem))),
+                    new LibraryFile(ResourceNamesWindows.GrammarEngine, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.GrammarEngine)))
+                )
+            );
         }
 
         public GrammarEngine()
         {
-            _libraryManagers.ForEach(x => x.LoadNativeLibrary());
+            _libraryManager.LoadNativeLibrary();
             _engine = GrammarApi.sol_CreateGrammarEngineW(null);
         }
 
         public GrammarEngine(IntPtr engine)
         {
-            _libraryManagers.ForEach(x => x.LoadNativeLibrary());
+            _libraryManager.LoadNativeLibrary();
             _engine = engine;
             Initialized = true;
         }
 
         public GrammarEngine(string dictionaryPath)
         {
-            _libraryManagers.ForEach(x => x.LoadNativeLibrary());
+            _libraryManager.LoadNativeLibrary();
             _engine = GrammarApi.sol_CreateGrammarEngineW(null);
             LoadDictionary(dictionaryPath);
         }

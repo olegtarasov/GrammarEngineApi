@@ -17,18 +17,21 @@ namespace GrammarEngineApi.Compiler
     /// </summary>
     public class DictionaryCompiler
     {
-        private static readonly List<LibraryManager> _libraryManagers;
+        private static readonly LibraryManager _libraryManager;
 
         static DictionaryCompiler()
         {
-            _libraryManagers = new List<LibraryManager>
-                               {
-                                   new LibraryManager("sqlite3", new LibraryItem("sqlite3.dll", Resources.sqlite3, Platform.Windows, Bitness.x64)),
-                                   new LibraryManager("boost_date_time", new LibraryItem("boost_date_time-vc141-mt-x64-1_68.dll", Resources.boost_date_time, Platform.Windows, Bitness.x64)),
-                                   new LibraryManager("boost_regex", new LibraryItem("boost_regex-vc141-mt-x64-1_68.dll", Resources.boost_regex, Platform.Windows, Bitness.x64)),
-                                   new LibraryManager("boost_system", new LibraryItem("boost_system-vc141-mt-x64-1_68.dll", Resources.boost_system, Platform.Windows, Bitness.x64)),
-                                   new LibraryManager("compiler", new LibraryItem("compiler.exe", Resources.compiler, Platform.Windows, Bitness.x64))
-                               };
+            var accessor = new ResourceAccessor();
+            _libraryManager = new LibraryManager(
+                Assembly.GetExecutingAssembly(),
+                new LibraryItem(Platform.Windows, Bitness.x64,
+                    new LibraryFile(ResourceNamesWindows.Sqlite3, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.Sqlite3))),
+                    new LibraryFile(ResourceNamesWindows.BoostDateTime, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.BoostDateTime))),
+                    new LibraryFile(ResourceNamesWindows.BoostRegex, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.BoostRegex))),
+                    new LibraryFile(ResourceNamesWindows.BoostSystem, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.BoostSystem))),
+                    new LibraryFile(ResourceNamesWindows.Compiler, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.Compiler)))
+                )
+            );
         }
 
         /// <summary>
@@ -36,7 +39,7 @@ namespace GrammarEngineApi.Compiler
         /// </summary>
         public DictionaryCompiler()
         {
-            _libraryManagers.ForEach(x => x.LoadNativeLibrary());
+            _libraryManager.LoadNativeLibrary(false);
         }
 
         public event EventHandler<string> Log; 

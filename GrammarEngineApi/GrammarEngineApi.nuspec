@@ -16,7 +16,7 @@
             <reference file="GrammarEngineApi.dll" />
         </references>
         <dependencies>
-            <dependency id="NativeLibraryManager" version="1.0.1"/>
+            <dependency id="NativeLibraryManager" version="1.0.6"/>
         </dependencies>
     </metadata>
     <files>
