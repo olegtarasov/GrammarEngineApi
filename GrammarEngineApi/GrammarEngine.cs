@@ -28,12 +28,15 @@ namespace GrammarEngineApi
             var accessor = new ResourceAccessor();
             _libraryManager = new LibraryManager(
                 Assembly.GetExecutingAssembly(),
-                new LibraryItem(Platform.MacOs, Bitness.x64,
+                new LibraryItem(Platform.Windows, Bitness.x64,
                     new LibraryFile(ResourceNamesWindows.Sqlite3, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.Sqlite3))),
                     new LibraryFile(ResourceNamesWindows.BoostDateTime, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.BoostDateTime))),
                     new LibraryFile(ResourceNamesWindows.BoostRegex, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.BoostRegex))),
                     new LibraryFile(ResourceNamesWindows.BoostSystem, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.BoostSystem))),
                     new LibraryFile(ResourceNamesWindows.GrammarEngine, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.GrammarEngine)))
+                ),
+                new LibraryItem(Platform.Linux, Bitness.x64,
+                    new LibraryFile(ResourceNamesLinux.GrammarEngine, accessor.Binary(ResourceNamesLinux.Resource(ResourceNamesLinux.GrammarEngine)))
                 )
             );
         }

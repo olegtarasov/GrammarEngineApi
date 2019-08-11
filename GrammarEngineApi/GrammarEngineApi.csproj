@@ -15,10 +15,11 @@
 
   <ItemGroup>
     <PackageReference Include="GrammarEngine" Version="1.0.56" />
+    <PackageReference Include="GrammarEngine.Linux" Version="1.1.77" />
     <PackageReference Include="LibLog" Version="5.0.6">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="NativeLibraryManager" Version="1.0.12" />
+    <PackageReference Include="NativeLibraryManager" Version="1.0.14" />
   </ItemGroup>
 </Project>

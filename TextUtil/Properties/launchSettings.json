@@ -2,7 +2,7 @@
   "profiles": {
     "TextUtil": {
       "commandName": "Project",
-      "commandLineArgs": "MorphologyTest -path=\"D:\\__Models\\test_corpus.txt\""
+      "commandLineArgs": "Test"
     }
   }
 }

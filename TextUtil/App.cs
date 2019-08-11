@@ -18,6 +18,13 @@ namespace TextUtil
     {
         private ILog _log = LogManager.GetLogger(typeof(App));
 
+        [Verb]
+        public void Test()
+        {
+            var engine = new GrammarEngine();
+        }
+        
+        
         //private static void LemmatizeFastJob(NluJob job, GrammarEnginePool enginePool, StreamWriter writer)
         //{
         //    if (job.Sentences?.Count == 0)
