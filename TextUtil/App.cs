@@ -21,7 +21,7 @@ namespace TextUtil
         [Verb]
         public void Test()
         {
-            var engine = new GrammarEngine();
+            var engine = new GrammarEngine(/*"/home/oleg/host/Projects/GrammarEngine/bin/linux/dictionary/x64/dictionary.xml"*/);
         }
         
         

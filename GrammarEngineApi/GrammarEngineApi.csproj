@@ -7,19 +7,22 @@
     <Product>Russian Grammatical Dictionary and Thesaurus C# API</Product>
     <Copyright>Elijah Koziev, Oleg Tarasov</Copyright>
     <Version>1.0.10</Version>
+    <Title>GrammarEngineApi</Title>
+    <Authors>Elijah Koziev, Oleg Tarasov</Authors>
+    <PackageProjectUrl>https://github.com/olegtarasov/GrammarEngine</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/olegtarasov/GrammarEngine</RepositoryUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DocumentationFile>bin\Release\netstandard2.0\GrammarEngineApi.xml</DocumentationFile>
   </PropertyGroup>
-
+  
   <ItemGroup>
     <PackageReference Include="GrammarEngine" Version="1.0.56" />
-    <PackageReference Include="GrammarEngine.Linux" Version="1.1.77" />
     <PackageReference Include="LibLog" Version="5.0.6">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="NativeLibraryManager" Version="1.0.14" />
+    <PackageReference Include="NativeLibraryManager" Version="1.0.15" />
   </ItemGroup>
 </Project>

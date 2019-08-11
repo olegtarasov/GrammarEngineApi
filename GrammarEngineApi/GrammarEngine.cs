@@ -36,7 +36,7 @@ namespace GrammarEngineApi
                     new LibraryFile(ResourceNamesWindows.GrammarEngine, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.GrammarEngine)))
                 ),
                 new LibraryItem(Platform.Linux, Bitness.x64,
-                    new LibraryFile(ResourceNamesLinux.GrammarEngine, accessor.Binary(ResourceNamesLinux.Resource(ResourceNamesLinux.GrammarEngine)))
+                    new LibraryFile("solarix_grammar_engine.so", accessor.Binary("Resources.solarix_grammar_engine.so"))
                 )
             );
         }
@@ -44,7 +44,9 @@ namespace GrammarEngineApi
         public GrammarEngine()
         {
             _libraryManager.LoadNativeLibrary();
-            _engine = GrammarApi.sol_CreateGrammarEngineW(null);
+            _engine = LinuxHandler(
+                () => GrammarApi.sol_CreateGrammarEngine8(null),
+                () => GrammarApi.sol_CreateGrammarEngineW(null));
         }
 
         public GrammarEngine(IntPtr engine)
@@ -57,16 +59,11 @@ namespace GrammarEngineApi
         public GrammarEngine(string dictionaryPath)
         {
             _libraryManager.LoadNativeLibrary();
-            _engine = GrammarApi.sol_CreateGrammarEngineW(null);
+            _engine = LinuxHandler(
+                () => GrammarApi.sol_CreateGrammarEngine8(null),
+                () => GrammarApi.sol_CreateGrammarEngineW(null));
             LoadDictionary(dictionaryPath);
         }
-
-#if NETSTANDARD || NETCORE || NETSTANDARD2_0 // должны быть определены в проекте через <DefineConstants>...</DefineConstants>
-// https://github.com/dotnet/corefx/blob/master/src/System.Runtime.InteropServices.RuntimeInformation/ref/System.Runtime.InteropServices.RuntimeInformation.cs
-        public bool IsLinux { get; } = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
-#else
-        public bool IsLinux { get; } = (int)Environment.OSVersion.Platform == 4 || (int)Environment.OSVersion.Platform == 6 || (int)Environment.OSVersion.Platform == 128;
-#endif
 
         public bool Initialized { get; private set; }
 
@@ -92,7 +89,8 @@ namespace GrammarEngineApi
             //    throw new InvalidOperationException("Lemmatizer database not found!");
             //}
 
-            var result = LinuxHandler(() => GrammarApi.sol_LoadDictionary8(_engine, GetUtf8Bytes(dictionaryPath)),
+            var result = LinuxHandler(
+                () => GrammarApi.sol_LoadDictionary8(_engine, GetUtf8Bytes(dictionaryPath)),
                 () => GrammarApi.sol_LoadDictionaryW(_engine, dictionaryPath));
 
             if (result != 1)
@@ -133,11 +131,12 @@ namespace GrammarEngineApi
 
         public AnalysisResults AnalyzeMorphology(string phrase, Languages language, MorphologyFlags flags, int constraints)
         {
-            var hPack = GrammarApi.sol_MorphologyAnalysis(_engine, phrase, flags, 0, constraints, (int)language);
+            var hPack = LinuxHandler(
+                () => GrammarApi.sol_MorphologyAnalysis8(_engine, GetUtf8Bytes(phrase), flags, 0, constraints, (int)language),
+                () => GrammarApi.sol_MorphologyAnalysis(_engine, phrase, flags, 0, constraints, (int)language));
             var res = new AnalysisResults(this, hPack);
             return res;
         }
-
 
         public AnalysisResults AnalyzeSyntax(string phrase, Languages language)
         {
@@ -151,7 +150,9 @@ namespace GrammarEngineApi
 
         public AnalysisResults AnalyzeSyntax(string phrase, Languages language, MorphologyFlags morphFlags, SyntaxFlags syntaxFlags, int constraints)
         {
-            var hPack = GrammarApi.sol_SyntaxAnalysis(_engine, phrase, morphFlags, syntaxFlags, constraints, (int)language);
+            var hPack = LinuxHandler(
+                () => GrammarApi.sol_SyntaxAnalysis8(_engine, GetUtf8Bytes(phrase), morphFlags, syntaxFlags, constraints, (int)language),
+                () => GrammarApi.sol_SyntaxAnalysis(_engine, phrase, morphFlags, syntaxFlags, constraints, (int)language));
             var res = new AnalysisResults(this, hPack);
             return res;
         }
@@ -274,7 +275,9 @@ namespace GrammarEngineApi
 
         public int FindEntry(string entryName, int partOfSpeech)
         {
-            return GrammarApi.sol_FindEntry(_engine, entryName, partOfSpeech, -1);
+            return LinuxHandler(
+                () => GrammarApi.sol_FindEntry8(_engine, GetUtf8Bytes(entryName), partOfSpeech, -1),
+                () => GrammarApi.sol_FindEntry(_engine, entryName, partOfSpeech, -1));
         }
 
         public int FindPhrase(string phraseText, bool caseSensitive)
@@ -294,7 +297,7 @@ namespace GrammarEngineApi
 
         public string GetEntryName(int idEntry)
         {
-            if (IsLinux)
+            if (LibraryManager.GetPlatform() == Platform.Linux)
             {
                 var buf8 = GetLexemBuffer8();
                 GrammarApi.sol_GetEntryName8(_engine, idEntry, buf8);
@@ -357,7 +360,7 @@ namespace GrammarEngineApi
 
         public string GetClassName(int partOfSpeechId)
         {
-            if (IsLinux)
+            if (LibraryManager.GetPlatform() == Platform.Linux)
             {
                 var buf8 = GetLexemBuffer8();
                 GrammarApi.sol_GetClassName8(_engine, partOfSpeechId, buf8);
@@ -580,7 +583,7 @@ namespace GrammarEngineApi
 
         private T LinuxHandler<T>(Func<T> isLinux, Func<T> isOther)
         {
-            if (IsLinux)
+            if (LibraryManager.GetPlatform() == Platform.Linux)
             {
                 return isLinux();
             }
@@ -610,7 +613,7 @@ namespace GrammarEngineApi
 
         public string GetLastError()
         {
-            if (IsLinux)
+            if (LibraryManager.GetPlatform() == Platform.Linux)
             {
                 var len = GrammarApi.sol_GetErrorLen8(_engine);
                 if (len == 0)

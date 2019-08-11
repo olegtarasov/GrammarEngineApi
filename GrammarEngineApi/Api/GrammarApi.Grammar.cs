@@ -5,8 +5,8 @@ using System.Text;
 namespace GrammarEngineApi.Api
 {
     public sealed partial class GrammarApi
-    {
-                /// <summary>
+    { 
+        /// <summary>
         ///     Создание экземпляра грамматического движка в памяти.
         ///     При непустом аргументе dictConfigPath будет также подключена словарная база.
         ///     Данная функция загружает весь лексикон сразу в память. Если возникающий при этом расход памяти и
@@ -19,6 +19,17 @@ namespace GrammarEngineApi.Api
         /// <seealso cref="sol_CreateGrammarEngineExW">sol_CreateGrammarEngineExW</seealso>
         [DllImport(GrenDllName, CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
         public static extern IntPtr sol_CreateGrammarEngineW(string dictConfigPath);
+        
+        /// <summary>
+        ///     Создание экземпляра грамматического движка в памяти.
+        ///     При непустом аргументе dictConfigPath будет также подключена словарная база.
+        ///     Данная функция загружает весь лексикон сразу в память. Если возникающий при этом расход памяти и
+        ///     задержка инициализации неприемлемы, следует использовать функцию sol_CreateGrammarEngineExW с
+        ///     указанием флага EngineInstanceFlags.SOL_GREN_LAZY_LEXICON.
+        ///     Онлайн-документация: http://www.solarix.ru/api/ru/sol_CreateGrammarEngine.shtml
+        /// </summary>
+        [DllImport(GrenDllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern IntPtr sol_CreateGrammarEngine8(byte[] dictPath);
 
         /// <summary>
         ///     Создание экземпляра грамматического движка в памяти.
@@ -85,6 +96,10 @@ namespace GrammarEngineApi.Api
         // http://www.solarix.ru/api/ru/sol_FindEntry.shtml
         [DllImport(GrenDllName, CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
         public static extern int sol_FindEntry(IntPtr hEngine, string name, int partOfSpeechId, int languageId);
+        
+        // http://www.solarix.ru/api/ru/sol_FindEntry.shtml
+        [DllImport(GrenDllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern int sol_FindEntry8(IntPtr hEngine, byte[] name, int partOfSpeechId, int languageId);
 
         // http://www.solarix.ru/api/ru/sol_FindClass.shtml
         [DllImport(GrenDllName, CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
@@ -595,6 +610,26 @@ namespace GrammarEngineApi.Api
             int constraints,
             int languageId
         );
+        
+        /// <summary>
+        ///     Выполнение морфологического разбора для слов в указанном предложении.
+        ///     В том числе может выполнять частеречную разметку с использованием вероятностной модели языка, если она
+        ///     подключена в словаре.
+        ///     http://www.solarix.ru/api/ru/sol_MorphologyAnalysis.shtml
+        /// </summary>
+        /// <returns>
+        ///     Возвращается дескриптор структуры с результатами разбора (см. процедуру
+        ///     <see cref="sol_CountRoots">sol_CountRoots</see> и другие)
+        /// </returns>
+        [DllImport(GrenDllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern IntPtr /*IntPtr_RESPACK*/ sol_MorphologyAnalysis8(
+            IntPtr hEngine,
+            byte[] sentence,
+            MorphologyFlags flags,
+            SyntaxFlags unusedFlags,
+            int constraints,
+            int languageId
+        );
 
         /// <summary>
         ///     Выполнение синтаксического разбора предложения.
@@ -608,6 +643,24 @@ namespace GrammarEngineApi.Api
         public static extern IntPtr sol_SyntaxAnalysis(
             IntPtr hEngine,
             string sentence,
+            MorphologyFlags flags,
+            SyntaxFlags unusedFlags,
+            int constraints,
+            int languageID
+        );
+        
+        /// <summary>
+        ///     Выполнение синтаксического разбора предложения.
+        ///     http://www.solarix.ru/api/ru/sol_SyntaxAnalysis.shtml
+        /// </summary>
+        /// <returns>
+        ///     Возвращается дескриптор структуры с результатами разбора (см. процедуру
+        ///     <see cref="sol_CountRoots">sol_CountRoots</see> и другие)
+        /// </returns>
+        [DllImport(GrenDllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern IntPtr sol_SyntaxAnalysis8(
+            IntPtr hEngine,
+            byte[] sentence,
             MorphologyFlags flags,
             SyntaxFlags unusedFlags,
             int constraints,
