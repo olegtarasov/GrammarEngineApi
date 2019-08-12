@@ -30,7 +30,9 @@ namespace GrammarEngineApi.Compiler
                     new LibraryFile(ResourceNamesWindows.BoostRegex, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.BoostRegex))),
                     new LibraryFile(ResourceNamesWindows.BoostSystem, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.BoostSystem))),
                     new LibraryFile(ResourceNamesWindows.Compiler, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.Compiler)))
-                )
+                ),
+                new LibraryItem(Platform.Linux, Bitness.x64,
+                    new LibraryFile("compiler", accessor.Binary("Resources.compiler")))
             );
         }
 

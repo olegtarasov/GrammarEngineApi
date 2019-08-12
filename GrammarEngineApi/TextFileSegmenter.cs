@@ -54,9 +54,10 @@ namespace GrammarEngineApi
                 return string.Empty;
             }
 
-            var b = new StringBuilder(len + 2);
-            GrammarApi.sol_GetFetchedSentence(_hObject, b);
-            return b.ToString();
+            return PlatformHandler.GetNativeString(
+                ptr => GrammarApi.sol_GetFetchedSentence8(_hObject, ptr),
+                builder => GrammarApi.sol_GetFetchedSentence(_hObject, builder),
+                len + 2);
         }
 
         /// <summary>

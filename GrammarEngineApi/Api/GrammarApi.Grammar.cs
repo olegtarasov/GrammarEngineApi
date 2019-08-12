@@ -104,14 +104,26 @@ namespace GrammarEngineApi.Api
         // http://www.solarix.ru/api/ru/sol_FindClass.shtml
         [DllImport(GrenDllName, CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
         public static extern int sol_FindClass(IntPtr hEngine, string partOfSpeechName);
+        
+        // http://www.solarix.ru/api/ru/sol_FindClass.shtml
+        [DllImport(GrenDllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern int sol_FindClass8(IntPtr hEngine, byte[] partOfSpeechName);
 
         // http://www.solarix.ru/api/ru/sol_FindEnum.shtml
         [DllImport(GrenDllName, CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
         public static extern int sol_FindEnum(IntPtr hEngine, string attributeName);
+        
+        // http://www.solarix.ru/api/ru/sol_FindEnum.shtml
+        [DllImport(GrenDllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern int sol_FindEnum8(IntPtr hEngine, byte[] attributeName);
 
         // http://www.solarix.ru/api/ru/sol_FindEnumState.shtml
         [DllImport(GrenDllName, CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
         public static extern int sol_FindEnumState(IntPtr hEngine, int attributeId, string stateName);
+        
+        // http://www.solarix.ru/api/ru/sol_FindEnumState.shtml
+        [DllImport(GrenDllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern int sol_FindEnumState8(IntPtr hEngine, int attributeId, byte[] stateName);
 
         [DllImport(GrenDllName, CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
         public static extern int sol_EnumInClass(IntPtr hEngine, int partOfSpeechId, int attributeId);
@@ -171,7 +183,7 @@ namespace GrammarEngineApi.Api
         public static extern int sol_GetEntryName(IntPtr hEngine, int EntryID, StringBuilder Result);
 
         [DllImport(GrenDllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int sol_GetEntryName8(IntPtr hEngine, int EntryID, byte[] ResultUtf8);
+        public static extern int sol_GetEntryName8(IntPtr hEngine, int EntryID, IntPtr ResultUtf8);
 
         // http://www.solarix.ru/api/ru/sol_GetEntryClass.shtml
         [DllImport(GrenDllName, CallingConvention = CallingConvention.StdCall)]
@@ -190,7 +202,7 @@ namespace GrammarEngineApi.Api
         public static extern int sol_GetClassName(IntPtr hEngine, int ClassIndex, StringBuilder Result);
 
         [DllImport(GrenDllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int sol_GetClassName8(IntPtr hEngine, int ClassIndex, byte[] buffer);
+        public static extern int sol_GetClassName8(IntPtr hEngine, int ClassIndex, IntPtr buffer);
 
 
         // http://www.solarix.ru/api/ru/sol_GetCoordType.shtml
@@ -200,15 +212,18 @@ namespace GrammarEngineApi.Api
         // http://www.solarix.ru/api/ru/sol_GetCoordName.shtml
         [DllImport(GrenDllName, CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
         public static extern int sol_GetCoordName(IntPtr hEngine, int CoordID, StringBuilder Result);
+        
+        // http://www.solarix.ru/api/ru/sol_GetCoordName.shtml
+        [DllImport(GrenDllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern int sol_GetCoordName8(IntPtr hEngine, int CoordID, IntPtr Result);
 
         // http://www.solarix.ru/api/ru/sol_GetCoordStateName.shtml
         [DllImport(GrenDllName, CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
-        public static extern int sol_GetCoordStateName(
-            IntPtr hEngine,
-            int CoordID,
-            int StateID,
-            StringBuilder Result
-        );
+        public static extern int sol_GetCoordStateName(IntPtr hEngine, int CoordID, int StateID, StringBuilder Result);
+        
+        // http://www.solarix.ru/api/ru/sol_GetCoordStateName.shtml
+        [DllImport(GrenDllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern int sol_GetCoordStateName8(IntPtr hEngine, int CoordID, int StateID, IntPtr Result);
 
         // http://www.solarix.ru/api/en/sol_CountCoordStates.shtml
         [DllImport(GrenDllName, CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
@@ -264,6 +279,10 @@ namespace GrammarEngineApi.Api
         // http://www.solarix.ru/api/ru/sol_ProjectWord.shtml
         [DllImport(GrenDllName, CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
         public static extern IntPtr sol_ProjectWord(IntPtr hEngine, string Word, int AllowDynforms);
+        
+        // http://www.solarix.ru/api/ru/sol_ProjectWord.shtml
+        [DllImport(GrenDllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern IntPtr sol_ProjectWord8(IntPtr hEngine, byte[] Word, int AllowDynforms);
 
         [DllImport(GrenDllName, CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
         public static extern IntPtr sol_ProjectMisspelledWord(IntPtr hEngine, string Word, int AllowDynforms, int nmaxmiss);
@@ -345,6 +364,10 @@ namespace GrammarEngineApi.Api
         // http://www.solarix.ru/api/ru/sol_GetNodeContents.shtml
         [DllImport(GrenDllName, CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
         public static extern void sol_GetNodeContents(IntPtr hNode, StringBuilder Result);
+        
+        // http://www.solarix.ru/api/ru/sol_GetNodeContents.shtml
+        [DllImport(GrenDllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern void sol_GetNodeContents8(IntPtr hNode, IntPtr Result);
 
         // http://www.solarix.ru/api/ru/sol_GetNodePosition.shtml
         [DllImport(GrenDllName, CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
@@ -455,6 +478,10 @@ namespace GrammarEngineApi.Api
         // http://www.solarix.ru/api/ru/sol_GetFetchedSentence.shtml
         [DllImport(GrenDllName, CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
         public static extern int sol_GetFetchedSentence(IntPtr hBroker, StringBuilder Buffer);
+        
+        // http://www.solarix.ru/api/ru/sol_GetFetchedSentence.shtml
+        [DllImport(GrenDllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern int sol_GetFetchedSentence8(IntPtr hBroker, IntPtr Buffer);
 
         // http://www.solarix.ru/api/ru/sol_DeleteSentenceBroker.shtml
         [DllImport(GrenDllName, CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
@@ -523,6 +550,14 @@ namespace GrammarEngineApi.Api
         [DllImport(GrenDllName, CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
         public static extern int sol_FindPhrase(IntPtr hEng, string Phrase, int Flags);
 
+        /// <summary>
+        ///     Find a phrase given a phrase text.
+        ///     <para>http://www.solarix.ru/api/en/sol_FindPhrase.shtml</para>
+        /// </summary>
+        [DllImport(GrenDllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern int sol_FindPhrase8(IntPtr hEng, byte[] Phrase, int Flags);
+
+        
         /// <summary>
         ///     Create new phrase entry in lexicon.
         ///     <para>http://www.solarix.ru/api/en/sol_AddPhrase.shtml</para>
@@ -724,7 +759,7 @@ namespace GrammarEngineApi.Api
         public static extern int sol_GetError(IntPtr hEngine, StringBuilder buffer, int buffer_len);
 
         [DllImport(GrenDllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int sol_GetError8(IntPtr hEngine, byte[] buffer, int buffer_len);
+        public static extern int sol_GetError8(IntPtr hEngine, IntPtr buffer, int buffer_len);
 
         // http://www.solarix.ru/api/ru/sol_GetErrorLen.shtml
         [DllImport(GrenDllName, CallingConvention = CallingConvention.StdCall)]

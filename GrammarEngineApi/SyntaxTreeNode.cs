@@ -133,9 +133,9 @@ namespace GrammarEngineApi
 
         private static string GetNodeContents(IntPtr hNode)
         {
-            var b = new StringBuilder(32);
-            GrammarApi.sol_GetNodeContents(hNode, b);
-            return b.ToString();
+            return PlatformHandler.GetNativeString(
+                ptr => GrammarApi.sol_GetNodeContents8(hNode, ptr),
+                builder => GrammarApi.sol_GetNodeContents(hNode, builder));
         }
 
         private CoordPair[] GetPairs()

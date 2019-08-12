@@ -21,63 +21,63 @@ namespace GrammarEngineApi.Api
             }
         }
 
-        public static ulong sol_CountNGramsFX(IntPtr hEngine, int Type, int Order)
-        {
-            uint Hi = 0, Lo = 0;
-            if (sol_CountNGrams(hEngine, Type, Order, out Hi, out Lo) == 0)
-            {
-                return 0;
-            }
+//        public static ulong sol_CountNGramsFX(IntPtr hEngine, int Type, int Order)
+//        {
+//            uint Hi = 0, Lo = 0;
+//            if (sol_CountNGrams(hEngine, Type, Order, out Hi, out Lo) == 0)
+//            {
+//                return 0;
+//            }
+//
+//            ulong res = (((ulong)Hi) << 32) | Lo;
+//            return res;
+//        }
 
-            ulong res = (((ulong)Hi) << 32) | Lo;
-            return res;
-        }
+//        public static string sol_GetFlexionHandlerWordformFX(
+//            IntPtr hEngine,
+//            IntPtr /*HFLEXIONTABLE*/ hFlex,
+//            string dims
+//        )
+//        {
+//            IntPtr wchar_ptr = sol_GetFlexionHandlerWordform(hEngine, hFlex, dims);
+//
+//            if (wchar_ptr == (IntPtr)null)
+//            {
+//                return "";
+//            }
+//
+//            string res = Marshal.PtrToStringUni(wchar_ptr);
+//            return res;
+//        }
+//
+//        public static string sol_GetLongStringFX(IntPtr hString)
+//        {
+//            int l = sol_GetLongStringLenW(hString);
+//            StringBuilder b = new StringBuilder(l + 1);
+//            sol_GetLongStringW(hString, b);
+//            return b.ToString();
+//        }
+//
+//        public static string sol_GetNodeMarkNameFX(IntPtr hNode, int mark_index)
+//        {
+//            StringBuilder b = new StringBuilder(64);
+//            sol_GetNodeMarkNameW(hNode, mark_index, b);
+//            return b.ToString();
+//        }
 
-        public static string sol_GetFlexionHandlerWordformFX(
-            IntPtr hEngine,
-            IntPtr /*HFLEXIONTABLE*/ hFlex,
-            string dims
-        )
-        {
-            IntPtr wchar_ptr = sol_GetFlexionHandlerWordform(hEngine, hFlex, dims);
-
-            if (wchar_ptr == (IntPtr)null)
-            {
-                return "";
-            }
-
-            string res = Marshal.PtrToStringUni(wchar_ptr);
-            return res;
-        }
-
-        public static string sol_GetLongStringFX(IntPtr hString)
-        {
-            int l = sol_GetLongStringLenW(hString);
-            StringBuilder b = new StringBuilder(l + 1);
-            sol_GetLongStringW(hString, b);
-            return b.ToString();
-        }
-
-        public static string sol_GetNodeMarkNameFX(IntPtr hNode, int mark_index)
-        {
-            StringBuilder b = new StringBuilder(64);
-            sol_GetNodeMarkNameW(hNode, mark_index, b);
-            return b.ToString();
-        }
-
-        public static string sol_GetPhraseTextFX(IntPtr hEngine, int PhraseId)
-        {
-            IntPtr wchar_ptr = sol_GetPhraseText(hEngine, PhraseId);
-
-            if (wchar_ptr == (IntPtr)null)
-            {
-                return "";
-            }
-
-            string res = Marshal.PtrToStringUni(wchar_ptr);
-            sol_Free(hEngine, wchar_ptr);
-            return res;
-        }
+//        public static string sol_GetPhraseTextFX(IntPtr hEngine, int PhraseId)
+//        {
+//            IntPtr wchar_ptr = sol_GetPhraseText(hEngine, PhraseId);
+//
+//            if (wchar_ptr == (IntPtr)null)
+//            {
+//                return "";
+//            }
+//
+//            string res = Marshal.PtrToStringUni(wchar_ptr);
+//            sol_Free(hEngine, wchar_ptr);
+//            return res;
+//        }
 
         public static string sol_GetStringFX(IntPtr hToks, int i)
         {

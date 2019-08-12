@@ -32,7 +32,7 @@ namespace GrammarEngineApi
                     new LibraryFile(ResourceNamesWindows.Sqlite3, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.Sqlite3))),
                     new LibraryFile(ResourceNamesWindows.BoostDateTime, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.BoostDateTime))),
                     new LibraryFile(ResourceNamesWindows.BoostRegex, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.BoostRegex))),
-                    new LibraryFile(ResourceNamesWindows.BoostSystem, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.BoostSystem))),
+                    //new LibraryFile(ResourceNamesWindows.BoostSystem, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.BoostSystem))),
                     new LibraryFile(ResourceNamesWindows.GrammarEngine, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.GrammarEngine)))
                 ),
                 new LibraryItem(Platform.Linux, Bitness.x64,
@@ -44,7 +44,7 @@ namespace GrammarEngineApi
         public GrammarEngine()
         {
             _libraryManager.LoadNativeLibrary();
-            _engine = LinuxHandler(
+            _engine = PlatformHandler.LinuxHandler(
                 () => GrammarApi.sol_CreateGrammarEngine8(null),
                 () => GrammarApi.sol_CreateGrammarEngineW(null));
         }
@@ -59,7 +59,7 @@ namespace GrammarEngineApi
         public GrammarEngine(string dictionaryPath)
         {
             _libraryManager.LoadNativeLibrary();
-            _engine = LinuxHandler(
+            _engine = PlatformHandler.LinuxHandler(
                 () => GrammarApi.sol_CreateGrammarEngine8(null),
                 () => GrammarApi.sol_CreateGrammarEngineW(null));
             LoadDictionary(dictionaryPath);
@@ -89,7 +89,7 @@ namespace GrammarEngineApi
             //    throw new InvalidOperationException("Lemmatizer database not found!");
             //}
 
-            var result = LinuxHandler(
+            var result = PlatformHandler.LinuxHandler(
                 () => GrammarApi.sol_LoadDictionary8(_engine, GetUtf8Bytes(dictionaryPath)),
                 () => GrammarApi.sol_LoadDictionaryW(_engine, dictionaryPath));
 
@@ -131,7 +131,7 @@ namespace GrammarEngineApi
 
         public AnalysisResults AnalyzeMorphology(string phrase, Languages language, MorphologyFlags flags, int constraints)
         {
-            var hPack = LinuxHandler(
+            var hPack = PlatformHandler.LinuxHandler(
                 () => GrammarApi.sol_MorphologyAnalysis8(_engine, GetUtf8Bytes(phrase), flags, 0, constraints, (int)language),
                 () => GrammarApi.sol_MorphologyAnalysis(_engine, phrase, flags, 0, constraints, (int)language));
             var res = new AnalysisResults(this, hPack);
@@ -150,7 +150,7 @@ namespace GrammarEngineApi
 
         public AnalysisResults AnalyzeSyntax(string phrase, Languages language, MorphologyFlags morphFlags, SyntaxFlags syntaxFlags, int constraints)
         {
-            var hPack = LinuxHandler(
+            var hPack = PlatformHandler.LinuxHandler(
                 () => GrammarApi.sol_SyntaxAnalysis8(_engine, GetUtf8Bytes(phrase), morphFlags, syntaxFlags, constraints, (int)language),
                 () => GrammarApi.sol_SyntaxAnalysis(_engine, phrase, morphFlags, syntaxFlags, constraints, (int)language));
             var res = new AnalysisResults(this, hPack);
@@ -275,14 +275,16 @@ namespace GrammarEngineApi
 
         public int FindEntry(string entryName, int partOfSpeech)
         {
-            return LinuxHandler(
+            return PlatformHandler.LinuxHandler(
                 () => GrammarApi.sol_FindEntry8(_engine, GetUtf8Bytes(entryName), partOfSpeech, -1),
                 () => GrammarApi.sol_FindEntry(_engine, entryName, partOfSpeech, -1));
         }
 
         public int FindPhrase(string phraseText, bool caseSensitive)
         {
-            return GrammarApi.sol_FindPhrase(_engine, phraseText, caseSensitive ? 1 : 0);
+            return PlatformHandler.LinuxHandler(
+                () => GrammarApi.sol_FindPhrase8(_engine, GetUtf8Bytes(phraseText), caseSensitive ? 1 : 0),
+                () => GrammarApi.sol_FindPhrase(_engine, phraseText, caseSensitive ? 1 : 0));
         }
 
         public int CountWordEntries()
@@ -297,16 +299,9 @@ namespace GrammarEngineApi
 
         public string GetEntryName(int idEntry)
         {
-            if (LibraryManager.GetPlatform() == Platform.Linux)
-            {
-                var buf8 = GetLexemBuffer8();
-                GrammarApi.sol_GetEntryName8(_engine, idEntry, buf8);
-                return Utf8ToString(buf8);
-            }
-
-            var b = new StringBuilder(32); // магическая константа 32 - фактически сейчас слов длиннее 32 символов в словарях нет.
-            GrammarApi.sol_GetEntryName(_engine, idEntry, b);
-            return b.ToString();
+            return PlatformHandler.GetNativeString(
+                ptr => GrammarApi.sol_GetEntryName8(_engine, idEntry, ptr),
+                builder => GrammarApi.sol_GetEntryName(_engine, idEntry, builder));
         }
 
         public int GetEntryAttrState(int entryId, int coordId)
@@ -314,10 +309,11 @@ namespace GrammarEngineApi
             return GrammarApi.sol_GetEntryCoordState(_engine, entryId, coordId);
         }
 
-        public string GetPhraseText(int phraseId)
-        {
-            return GrammarApi.sol_GetPhraseTextFX(_engine, phraseId);
-        }
+        // TODO: Add Linux support if method is needed.
+//        public string GetPhraseText(int phraseId)
+//        {
+//            return GrammarApi.sol_GetPhraseTextFX(_engine, phraseId);
+//        }
 
         #endregion
 
@@ -330,22 +326,30 @@ namespace GrammarEngineApi
 
         public int FindCoord(string coordName)
         {
-            return GrammarApi.sol_FindEnum(_engine, coordName);
+            return PlatformHandler.LinuxHandler(
+                () => GrammarApi.sol_FindEnum8(_engine, GetUtf8Bytes(coordName)),
+                () => GrammarApi.sol_FindEnum(_engine, coordName));
         }
 
         public int FindState(int coordId, string stateName)
         {
-            return GrammarApi.sol_FindEnumState(_engine, coordId, stateName);
+            return PlatformHandler.LinuxHandler(
+                () => GrammarApi.sol_FindEnumState8(_engine, coordId, GetUtf8Bytes(stateName)),
+                () => GrammarApi.sol_FindEnumState(_engine, coordId, stateName));
         }
 
         public string GetCoordStateName(int coordId, int stateId)
         {
-            return GrammarApi.GetCString(b => GrammarApi.sol_GetCoordStateName(_engine, coordId, stateId, b));
+            return PlatformHandler.GetNativeString(
+                ptr => GrammarApi.sol_GetCoordStateName8(_engine, coordId, stateId, ptr),
+                builder => GrammarApi.sol_GetCoordStateName(_engine, coordId, stateId, builder));
         }
 
         public string GetCoordName(int coordId)
         {
-            return GrammarApi.GetCString(b => GrammarApi.sol_GetCoordName(_engine, coordId, b));
+            return PlatformHandler.GetNativeString(
+                ptr => GrammarApi.sol_GetCoordName8(_engine, coordId, ptr),
+                builder => GrammarApi.sol_GetCoordName(_engine, coordId, builder));
         }
 
         public int GetCoordType(int partOfSpeechId, int coordId)
@@ -360,31 +364,30 @@ namespace GrammarEngineApi
 
         public string GetClassName(int partOfSpeechId)
         {
-            if (LibraryManager.GetPlatform() == Platform.Linux)
-            {
-                var buf8 = GetLexemBuffer8();
-                GrammarApi.sol_GetClassName8(_engine, partOfSpeechId, buf8);
-                return Utf8ToString(buf8);
-            }
-
-            var b = new StringBuilder(32);
-            GrammarApi.sol_GetClassName(_engine, partOfSpeechId, b);
-            return b.ToString();
+            return PlatformHandler.GetNativeString(
+                ptr => GrammarApi.sol_GetClassName8(_engine, partOfSpeechId, ptr),
+                builder => GrammarApi.sol_GetClassName(_engine, partOfSpeechId, builder));
         }
 
         public int FindPartOfSpeech(string partOfSpeechName)
         {
-            return GrammarApi.sol_FindClass(_engine, partOfSpeechName);
+            return PlatformHandler.LinuxHandler(
+                () => GrammarApi.sol_FindClass8(_engine, GetUtf8Bytes(partOfSpeechName)),
+                () => GrammarApi.sol_FindClass(_engine, partOfSpeechName));
         }
 
         public int FindTag(string tagName)
         {
-            return GrammarApi.sol_FindTagW(GetEngineHandle(), tagName);
+            return PlatformHandler.LinuxHandler(
+                () => throw new InvalidOperationException("Linux is not supported for this operation."),
+                () => GrammarApi.sol_FindTagW(GetEngineHandle(), tagName));
         }
 
         public int FindTagValue(int tagId, string valueName)
         {
-            return GrammarApi.sol_FindTagValueW(GetEngineHandle(), tagId, valueName);
+            return PlatformHandler.LinuxHandler(
+                () => throw new InvalidOperationException("Linux is not supported for this operation."),
+                () => GrammarApi.sol_FindTagValueW(GetEngineHandle(), tagId, valueName));
         }
 
         #endregion
@@ -393,73 +396,84 @@ namespace GrammarEngineApi
 
         public ProjectionResults FindWordForms(string wordform)
         {
-            return new ProjectionResults(this, GrammarApi.sol_ProjectWord(_engine, wordform, 0));
+            var hList = PlatformHandler.LinuxHandler(
+                () => GrammarApi.sol_ProjectWord8(_engine, GetUtf8Bytes(wordform), 0),
+                () => GrammarApi.sol_ProjectWord(_engine, wordform, 0));
+            return new ProjectionResults(this, hList);
         }
 
         public ProjectionResults ProjectMisspelledWord(string word, int nmaxmiss)
         {
-            return new ProjectionResults(this, GrammarApi.sol_ProjectMisspelledWord(_engine, word, 0, nmaxmiss));
+            var hList = PlatformHandler.LinuxHandler(
+                () => GrammarApi.sol_ProjectMisspelledWord8(_engine, GetUtf8Bytes(word), 0, nmaxmiss),
+                () => GrammarApi.sol_ProjectMisspelledWord(_engine, word, 0, nmaxmiss));
+            
+            return new ProjectionResults(this, hList);
         }
-        public List<string> GenerateWordforms(int entryId, List<int> coordId, List<int> stateId)
-        {
-            var npairs = coordId.Count;
-            var pairs = new int[npairs * 2];
-            for (int i = 0, j = 0; i < npairs; ++i)
-            {
-                pairs[j++] = coordId[i];
-                pairs[j++] = stateId[i];
-            }
+        
+        // TODO: Add proper Linux support if the method is needed.
+//        public List<string> GenerateWordforms(int entryId, List<int> coordId, List<int> stateId)
+//        {
+//            var npairs = coordId.Count;
+//            var pairs = new int[npairs * 2];
+//            for (int i = 0, j = 0; i < npairs; ++i)
+//            {
+//                pairs[j++] = coordId[i];
+//                pairs[j++] = stateId[i];
+//            }
+//
+//            var res = new List<string>();
+//            var hStr = GrammarApi.sol_GenerateWordforms(_engine, entryId, npairs, pairs);
+//            if (hStr != (IntPtr)0)
+//            {
+//                var nstr = GrammarApi.sol_CountStrings(hStr);
+//                for (var k = 0; k < nstr; ++k)
+//                {
+//                    res.Add(GrammarApi.sol_GetStringFX(hStr, k));
+//                }
+//
+//                GrammarApi.sol_DeleteStrings(hStr);
+//            }
+//
+//            return res;
+//        }
 
-            var res = new List<string>();
-            var hStr = GrammarApi.sol_GenerateWordforms(_engine, entryId, npairs, pairs);
-            if (hStr != (IntPtr)0)
-            {
-                var nstr = GrammarApi.sol_CountStrings(hStr);
-                for (var k = 0; k < nstr; ++k)
-                {
-                    res.Add(GrammarApi.sol_GetStringFX(hStr, k));
-                }
+        // TODO: Add proper Linux support if the method is needed.
+//        public List<int> GetLinks(int idEntry, int linkType)
+//        {
+//            var res = new List<int>();
+//
+//            var hList = GrammarApi.sol_ListLinksTxt(_engine, idEntry, linkType, 0);
+//            if (hList != IntPtr.Zero)
+//            {
+//                var n = GrammarApi.sol_LinksInfoCount(_engine, hList);
+//                for (var i = 0; i < n; ++i)
+//                {
+//                    var idEntry2 = GrammarApi.sol_LinksInfoEKey2(_engine, hList, i);
+//                    res.Add(idEntry2);
+//                }
+//
+//                GrammarApi.sol_DeleteLinksInfo(_engine, hList);
+//            }
+//
+//            return res;
+//        }
 
-                GrammarApi.sol_DeleteStrings(hStr);
-            }
-
-            return res;
-        }
-
-        public List<int> GetLinks(int idEntry, int linkType)
-        {
-            var res = new List<int>();
-
-            var hList = GrammarApi.sol_ListLinksTxt(_engine, idEntry, linkType, 0);
-            if (hList != IntPtr.Zero)
-            {
-                var n = GrammarApi.sol_LinksInfoCount(_engine, hList);
-                for (var i = 0; i < n; ++i)
-                {
-                    var idEntry2 = GrammarApi.sol_LinksInfoEKey2(_engine, hList, i);
-                    res.Add(idEntry2);
-                }
-
-                GrammarApi.sol_DeleteLinksInfo(_engine, hList);
-            }
-
-            return res;
-        }
-
-
-        public string GetNounForm(int id, int number, int @case)
-        {
-            var sb = new StringBuilder();
-            GrammarApi.sol_GetNounForm(GetEngineHandle(), id, number, @case, sb);
-            return sb.ToString();
-        }
-
-        public string GetVerbForm(int id, int number, int gender, int tense, int person)
-        {
-            var sb = new StringBuilder();
-            GrammarApi.sol_GetVerbForm(GetEngineHandle(), id, number, gender, tense, person, sb);
-            return sb.ToString();
-        }
+        // TODO: Add proper Linux support if the method is needed.
+//        public string GetNounForm(int id, int number, int @case)
+//        {
+//            var sb = new StringBuilder();
+//            GrammarApi.sol_GetNounForm(GetEngineHandle(), id, number, @case, sb);
+//            return sb.ToString();
+//        }
+//
+        // TODO: Add proper Linux support if the method is needed.
+//        public string GetVerbForm(int id, int number, int gender, int tense, int person)
+//        {
+//            var sb = new StringBuilder();
+//            GrammarApi.sol_GetVerbForm(GetEngineHandle(), id, number, gender, tense, person, sb);
+//            return sb.ToString();
+//        }
 
         public int TranslateToInfinitive(int id)
         {
@@ -581,65 +595,39 @@ namespace GrammarEngineApi
             //}
         }
 
-        private T LinuxHandler<T>(Func<T> isLinux, Func<T> isOther)
-        {
-            if (LibraryManager.GetPlatform() == Platform.Linux)
-            {
-                return isLinux();
-            }
-
-            return isOther();
-        }
-
         private byte[] GetUtf8Bytes(string input) => Encoding.UTF8.GetBytes(input);
-
-        private static byte[] GetLexemBuffer8()
-        {
-            return new byte[32 * 6];
-        }
-
-        private static string Utf8ToString(byte[] utf8)
-        {
-            for (var i = 0; i < utf8.Length; ++i)
-            {
-                if (utf8[i] == 0)
-                {
-                    return Encoding.UTF8.GetString(utf8, 0, i);
-                }
-            }
-
-            throw new Exception();
-        }
 
         public string GetLastError()
         {
-            if (LibraryManager.GetPlatform() == Platform.Linux)
-            {
-                var len = GrammarApi.sol_GetErrorLen8(_engine);
-                if (len == 0)
+            return PlatformHandler.LinuxHandler(
+                () =>
                 {
-                    return "";
-                }
+                    int len = GrammarApi.sol_GetErrorLen8(_engine);
+                    if (len == 0)
+                    {
+                        return "";
+                    }
 
-                var errUtf8 = new byte[len];
-                GrammarApi.sol_GetError8(_engine, errUtf8, len);
-
-                GrammarApi.sol_ClearError(_engine);
-                return Encoding.UTF8.GetString(errUtf8);
-            }
-            else
-            {
-                var len = GrammarApi.sol_GetErrorLen(_engine);
-                if (len == 0)
+                    return PlatformHandler.GetUtf8String(ptr =>
+                        {
+                            GrammarApi.sol_GetError8(_engine, ptr, len);
+                            GrammarApi.sol_ClearError(_engine);
+                        }, len + 1);
+                },
+                () =>
                 {
-                    return "";
-                }
+                    int len = GrammarApi.sol_GetErrorLen(_engine);
+                    if (len == 0)
+                    {
+                        return "";
+                    }
 
-                var b = new StringBuilder(len + 1);
-                GrammarApi.sol_GetError(_engine, b, len);
-                GrammarApi.sol_ClearError(_engine);
-                return b.ToString();
-            }
+                    return PlatformHandler.GetUnicodeString(builder =>
+                        {
+                            GrammarApi.sol_GetError(_engine, builder, len);
+                            GrammarApi.sol_ClearError(_engine);
+                        }, len + 1);
+                });
         }
     }
 }
