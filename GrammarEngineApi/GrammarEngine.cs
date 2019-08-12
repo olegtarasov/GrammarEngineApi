@@ -25,7 +25,7 @@ namespace GrammarEngineApi
 
         static GrammarEngine()
         {
-            var accessor = new ResourceAccessor();
+            var accessor = new NativeLibraryManager.ResourceAccessor(Assembly.GetExecutingAssembly());
             _libraryManager = new LibraryManager(
                 Assembly.GetExecutingAssembly(),
                 new LibraryItem(Platform.Windows, Bitness.x64,
@@ -36,7 +36,7 @@ namespace GrammarEngineApi
                     new LibraryFile(ResourceNamesWindows.GrammarEngine, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.GrammarEngine)))
                 ),
                 new LibraryItem(Platform.Linux, Bitness.x64,
-                    new LibraryFile("solarix_grammar_engine.so", accessor.Binary("Resources.solarix_grammar_engine.so"))
+                    new LibraryFile(ResourceNamesLinux.GrammarEngine, accessor.Binary(ResourceNamesLinux.GrammarEngine))
                 )
             );
         }

@@ -21,18 +21,18 @@ namespace GrammarEngineApi.Compiler
 
         static DictionaryCompiler()
         {
-            var accessor = new ResourceAccessor();
+            var accessor = new NativeLibraryManager.ResourceAccessor(Assembly.GetExecutingAssembly());
             _libraryManager = new LibraryManager(
                 Assembly.GetExecutingAssembly(),
                 new LibraryItem(Platform.Windows, Bitness.x64,
                     new LibraryFile(ResourceNamesWindows.Sqlite3, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.Sqlite3))),
                     new LibraryFile(ResourceNamesWindows.BoostDateTime, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.BoostDateTime))),
                     new LibraryFile(ResourceNamesWindows.BoostRegex, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.BoostRegex))),
-                    new LibraryFile(ResourceNamesWindows.BoostSystem, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.BoostSystem))),
+                    //new LibraryFile(ResourceNamesWindows.BoostSystem, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.BoostSystem))),
                     new LibraryFile(ResourceNamesWindows.Compiler, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.Compiler)))
                 ),
                 new LibraryItem(Platform.Linux, Bitness.x64,
-                    new LibraryFile("compiler", accessor.Binary("Resources.compiler")))
+                    new LibraryFile(ResourceNamesLinux.Compiler, accessor.Binary(ResourceNamesLinux.Compiler)))
             );
         }
 
