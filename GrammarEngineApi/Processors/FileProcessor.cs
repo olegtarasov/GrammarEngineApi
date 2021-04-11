@@ -1,13 +1,13 @@
 ﻿using System;
 using System.IO;
-using GrammarEngineApi.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace GrammarEngineApi.Processors
 {
     public class FileProcessor<TFileContext, TSentenceContext>
     {
-        private static readonly ILog _log = LogProvider.GetLogger(typeof(FileProcessor<,>));
-
+        private readonly ILogger<FileProcessor<TFileContext, TSentenceContext>> _log;
+        
         private readonly string[] _files;
         private readonly GrammarEnginePool _enginePool;
         private readonly int _batchSize;
@@ -23,7 +23,8 @@ namespace GrammarEngineApi.Processors
                              Func<string, TFileContext> fileContextFactory, 
                              Func<TFileContext, TSentenceContext> sentenceContextFactory,
                              Action<SentenceJob<TSentenceContext>, TFileContext> action, 
-                             Action<string, TFileContext> fileFinalizer)
+                             Action<string, TFileContext> fileFinalizer,
+                             ILoggerFactory loggerFactory = null)
             : this(path, 
                 enginePool, 
                 batchSize, 
@@ -31,7 +32,8 @@ namespace GrammarEngineApi.Processors
                 sentenceContextFactory, 
                 action, 
                 fileFinalizer, 
-                Environment.ProcessorCount)
+                Environment.ProcessorCount,
+                loggerFactory)
         {
         }
 
@@ -42,7 +44,8 @@ namespace GrammarEngineApi.Processors
                              Func<TFileContext, TSentenceContext> sentenceContextFactory,
                              Action<SentenceJob<TSentenceContext>, TFileContext> action, 
                              Action<string, TFileContext> fileFinalizer, 
-                             int numTasks)
+                             int numTasks,
+                             ILoggerFactory loggerFactory = null)
         {
             _enginePool = enginePool;
             _batchSize = batchSize;
@@ -51,10 +54,13 @@ namespace GrammarEngineApi.Processors
             _fileFinalizer = fileFinalizer;
             _fileContextFactory = fileContextFactory;
             _sentenceContextFactory = sentenceContextFactory;
-            _log.Info($"Path to process is: {path}");
+            
+            _log = loggerFactory?.CreateLogger<FileProcessor<TFileContext, TSentenceContext>>();
+            
+            _log?.LogInformation($"Path to process is: {path}");
             if (File.Exists(path))
             {
-                _log.Info("This is a single file.");
+                _log?.LogInformation("This is a single file.");
                 _files = new[] {path};
                 return;
             }
@@ -68,14 +74,14 @@ namespace GrammarEngineApi.Processors
             string pattern = Path.GetFileName(path);
             _files = Directory.GetFiles(dir, string.IsNullOrEmpty(pattern) ? "*" : pattern);
 
-            _log.Info($"Discovered {_files.Length} files.");
+            _log?.LogInformation($"Discovered {_files.Length} files.");
         }
 
         public void Process()
         {
             foreach (var file in _files)
             {
-                _log.Info($"Starting to process {file}");
+                _log?.LogInformation($"Starting to process {file}");
 
                 var context = _fileContextFactory(file);
                 var eng = _enginePool.GetInstance();
@@ -88,7 +94,7 @@ namespace GrammarEngineApi.Processors
                 }
 
                 _fileFinalizer?.Invoke(file, context);
-                _log.Info($"Finished processing {file}");
+                _log?.LogInformation($"Finished processing {file}");
             }
         }
     }

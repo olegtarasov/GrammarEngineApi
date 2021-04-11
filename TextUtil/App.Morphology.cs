@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using CLAP;
 using GrammarEngineApi;
 using GrammarEngineApi.Processors;
+using Microsoft.Extensions.Logging;
 
 namespace TextUtil
 {
@@ -112,7 +113,8 @@ namespace TextUtil
         [Verb]
         public void Spellcheck([DefaultValue(2)] int maxMiss)
         {
-            var engine = new GrammarEngine(ConfigurationManager.AppSettings["GrammarPath"]);
+            // TODO: Dictionary from config
+            var engine = new GrammarEngine();
 
             Console.WriteLine("Enter misspelled word to find its forms");
             while (true)
@@ -145,7 +147,8 @@ namespace TextUtil
         [Verb]
         public void MorphologyTest(string path)
         {
-            var engine = new GrammarEngine(ConfigurationManager.AppSettings["GrammarPath"]);
+            // TODO: dictionary from config
+            var engine = new GrammarEngine("");
 
             using (var reader = new StreamReader(path))
             {
@@ -178,10 +181,11 @@ namespace TextUtil
         [Verb]
         public void Morphology(string path, [DefaultValue(false)] bool sequential)
         {
-            var enginePool = new GrammarEnginePool(ConfigurationManager.AppSettings["GrammarPath"]);
+            // TODO: Dictionary from config
+            var enginePool = new GrammarEnginePool("");
             const int batchSize = 16;
 
-            _log.Info($"Got {Environment.ProcessorCount} threads. Batch size for each thread: {batchSize}.");
+            _log.LogInformation($"Got {Environment.ProcessorCount} threads. Batch size for each thread: {batchSize}.");
             
             var processor = new FileProcessor<MorphologyFileContext, Sentence>(
                 path, 

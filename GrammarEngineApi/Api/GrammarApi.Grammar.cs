@@ -150,6 +150,10 @@ namespace GrammarEngineApi.Api
         // http://www.solarix.ru/api/ru/sol_GetString.shtml
         [DllImport(GrenDllName, CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
         public static extern int sol_GetStringW(IntPtr hStr, int i, StringBuilder buffer);
+        
+        // http://www.solarix.ru/api/ru/sol_GetString.shtml
+        [DllImport(GrenDllName, CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
+        public static extern int sol_GetString8(IntPtr hStr, int i, IntPtr result);
 
         // http://www.solarix.ru/api/ru/sol_DeleteStrings.shtml
         [DllImport(GrenDllName, CallingConvention = CallingConvention.StdCall)]
@@ -462,10 +466,18 @@ namespace GrammarEngineApi.Api
         // http://www.solarix.ru/api/ru/sol_CreateSentenceBroker.shtml
         [DllImport(GrenDllName, CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
         public static extern IntPtr sol_CreateSentenceBroker(IntPtr hEngine, string Filename, string DefaultCodepage, int language);
+        
+        // http://www.solarix.ru/api/ru/sol_CreateSentenceBroker.shtml
+        [DllImport(GrenDllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern IntPtr sol_CreateSentenceBroker8(IntPtr hEngine, byte[] Filename, byte[] DefaultCodepage, int language);
 
         // http://www.solarix.ru/api/ru/sol_CreateSentenceBrokerMem.shtml
         [DllImport(GrenDllName, CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
         public static extern IntPtr sol_CreateSentenceBrokerMemW(IntPtr hEngine, string Text, int language);
+        
+        // http://www.solarix.ru/api/ru/sol_CreateSentenceBrokerMem.shtml
+        [DllImport(GrenDllName, CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
+        public static extern IntPtr sol_CreateSentenceBrokerMem8(IntPtr hEngine, byte[] Text, int language);
 
         // http://www.solarix.ru/api/ru/sol_FetchSentence.shtml
         [DllImport(GrenDllName, CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
@@ -490,6 +502,10 @@ namespace GrammarEngineApi.Api
         // http://www.solarix.ru/api/ru/sol_Tokenize.shtml
         [DllImport(GrenDllName, CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
         public static extern IntPtr sol_TokenizeW(IntPtr hEngine, string Text, int language);
+        
+        // http://www.solarix.ru/api/ru/sol_Tokenize.shtml
+        [DllImport(GrenDllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern IntPtr sol_Tokenize8(IntPtr hEngine, byte[] Text, int language);
 
         [DllImport(GrenDllName, CallingConvention = CallingConvention.StdCall)]
         public static extern int sol_Bits();

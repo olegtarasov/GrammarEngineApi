@@ -7,23 +7,23 @@ namespace GrammarEngineApi
 {
     public static class PlatformHandler
     {
-        public static readonly bool IsLinux = LibraryManager.GetPlatform() == Platform.Linux;
+        public static readonly bool IsUnix = LibraryManager.GetPlatform() is Platform.Linux or Platform.MacOs;
 
-        public static string GetNativeString(Action<IntPtr> linuxAction, Action<StringBuilder> windowsAction, int len = 32)
+        public static string GetNativeString(Action<IntPtr> unixAction, Action<StringBuilder> windowsAction, int len = 32)
         {
-            if (IsLinux)
+            if (IsUnix)
             {
-                return GetUtf8String(linuxAction, len);
+                return GetUtf8String(unixAction, len);
             }
 
             return GetUnicodeString(windowsAction, len);
         }
 
-        public static T LinuxHandler<T>(Func<T> isLinux, Func<T> isOther)
+        public static T UnixHandler<T>(Func<T> isUnix, Func<T> isOther)
         {
-            if (IsLinux)
+            if (IsUnix)
             {
-                return isLinux();
+                return isUnix();
             }
 
             return isOther();

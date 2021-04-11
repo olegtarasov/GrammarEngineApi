@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CLAP;
+using Serilog;
+using Serilog.Sinks.SystemConsole.Themes;
 
 namespace TextUtil
 {
@@ -11,7 +13,11 @@ namespace TextUtil
     {
         static void Main(string[] args)
         {
-            LogHelper.ConfigureLog4Net(typeof(Program).Assembly, false, true);
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.Console(theme: ConsoleTheme.None)
+                .CreateLogger();
+            
             var startDate = DateTime.Now;
             Console.WriteLine($"Started at {startDate:u}");
             Parser.Run(args, new App());

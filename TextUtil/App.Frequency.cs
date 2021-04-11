@@ -6,6 +6,7 @@ using System.Linq;
 using CLAP;
 using GrammarEngineApi;
 using GrammarEngineApi.Processors;
+using Microsoft.Extensions.Logging;
 
 namespace TextUtil
 {
@@ -20,7 +21,8 @@ namespace TextUtil
         [Verb]
         public void WordFrequency(string path)
         {
-            var enginePool = new GrammarEnginePool(ConfigurationManager.AppSettings["GrammarPath"]);
+            // TODO: Dictionary path from config
+            var enginePool = new GrammarEnginePool("");
             var processor = new FileProcessor<Frequency, object>(
                 path, 
                 enginePool, 
@@ -136,7 +138,7 @@ namespace TextUtil
 
             foreach (var file in files)
             {
-                _log.Info($"Processing file {file}");
+                _log.LogInformation($"Processing file {file}");
 
                 using (var reader = new StreamReader(file))
                 {

@@ -37,7 +37,6 @@
 // LC->12.09.2017
 // --------------
 
-using GrammarEngineApi.Logging;
 
 namespace GrammarEngineApi.Api
 {
@@ -46,9 +45,7 @@ namespace GrammarEngineApi.Api
     /// </summary>
     public sealed partial class GrammarApi
     {
-        private const string GrenDllName = "solarix_grammar_engine";
+        private const string GrenDllName = "gren";
         private const string LemDllName = "lemmatizator.dll";
-
-        private static readonly ILog _log = LogProvider.For<GrammarApi>();
     }
 }

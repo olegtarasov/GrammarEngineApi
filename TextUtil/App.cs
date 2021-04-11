@@ -8,7 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using CLAP;
 using GrammarEngineApi;
-using log4net;
+using Microsoft.Extensions.Logging;
+using Serilog.Extensions.Logging;
 
 // Lemmatize -path="C:\_Models\all.1.plain.txt"
 
@@ -16,12 +17,21 @@ namespace TextUtil
 {
     public partial class App
     {
-        private ILog _log = LogManager.GetLogger(typeof(App));
+        private readonly ILoggerFactory _loggerFactory;
+        private readonly ILogger<App> _log;
+
+        public App()
+        {
+            _loggerFactory = new SerilogLoggerFactory();
+            _log = _loggerFactory.CreateLogger<App>();
+        }
 
         [Verb]
         public void Test()
         {
-            var engine = new GrammarEngine(/*"/home/oleg/host/Projects/GrammarEngine/bin/linux/dictionary/x64/dictionary.xml"*/);
+            var engine = new GrammarEngine("/Users/oleg/Projects/GrammarEngine/bin/macos/dictionary/x64/dictionary.xml", _loggerFactory);
+            var tokens = engine.TokenizeSentence("Мы если суп, а ели шумели.", Languages.RUSSIAN_LANGUAGE);
+            var morph = engine.AnalyzeMorphology("Мы если суп, а ели шумели.", Languages.RUSSIAN_LANGUAGE, MorphologyFlags.SOL_GREN_MODEL | MorphologyFlags.SOL_GREN_MODEL_ONLY);
         }
         
         

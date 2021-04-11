@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CLAP;
 using GrammarEngineApi.Compiler;
+using Microsoft.Extensions.Logging;
 
 namespace TextUtil
 {
@@ -29,7 +30,7 @@ namespace TextUtil
                                 }
                                 else
                                 {
-                                    _log.Info("Compiled successfully. Hit any key now.");
+                                    _log.LogInformation("Compiled successfully. Hit any key now.");
                                 }
                             });
 

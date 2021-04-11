@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using GrammarEngineApi.Api;
-using GrammarEngineApi.Logging;
 using GrammarEngineApi.Properties;
+using Microsoft.Extensions.Logging;
 using NativeLibraryManager;
 
 namespace GrammarEngineApi
@@ -16,52 +17,44 @@ namespace GrammarEngineApi
     /// </summary>
     public class GrammarEngine : IDisposable
     {
-        private static readonly ILog _log = LogProvider.For<GrammarEngine>();
-        private static readonly LibraryManager _libraryManager;
-
+        private readonly ILogger<GrammarEngine> _log;
         private readonly IntPtr _engine;
 
         //private IntPtr _lemmatizer;
 
-        static GrammarEngine()
+        public GrammarEngine(ILoggerFactory loggerFactory = null)
         {
             var accessor = new NativeLibraryManager.ResourceAccessor(Assembly.GetExecutingAssembly());
-            _libraryManager = new LibraryManager(
-                Assembly.GetExecutingAssembly(),
-                new LibraryItem(Platform.Windows, Bitness.x64,
-                    new LibraryFile(ResourceNamesWindows.Sqlite3, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.Sqlite3))),
-                    new LibraryFile(ResourceNamesWindows.BoostDateTime, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.BoostDateTime))),
-                    new LibraryFile(ResourceNamesWindows.BoostRegex, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.BoostRegex))),
-                    //new LibraryFile(ResourceNamesWindows.BoostSystem, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.BoostSystem))),
-                    new LibraryFile(ResourceNamesWindows.GrammarEngine, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.GrammarEngine)))
-                ),
-                new LibraryItem(Platform.Linux, Bitness.x64,
-                    new LibraryFile(ResourceNamesLinux.GrammarEngine, accessor.Binary(ResourceNamesLinux.GrammarEngine))
-                )
+            var manager = new LibraryManager(
+                loggerFactory,
+                // new LibraryItem(Platform.Windows, Bitness.x64,
+                //     new LibraryFile(ResourceNamesWindows.Sqlite3, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.Sqlite3))),
+                //     new LibraryFile(ResourceNamesWindows.BoostDateTime, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.BoostDateTime))),
+                //     new LibraryFile(ResourceNamesWindows.BoostRegex, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.BoostRegex))),
+                //     //new LibraryFile(ResourceNamesWindows.BoostSystem, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.BoostSystem))),
+                //     new LibraryFile(ResourceNamesWindows.GrammarEngine, accessor.Binary(ResourceNamesWindows.Resource(ResourceNamesWindows.GrammarEngine)))
+                // ),
+                // new LibraryItem(Platform.Linux, Bitness.x64,
+                //     new LibraryFile(ResourceNamesLinux.GrammarEngine, accessor.Binary(ResourceNamesLinux.GrammarEngine))
+                // ),
+                new LibraryItem(Platform.MacOs, Bitness.x64, 
+                    new LibraryFile("libgren.dylib", accessor.Binary("libgren.dylib")))
             );
-        }
-
-        public GrammarEngine()
-        {
-            _libraryManager.LoadNativeLibrary();
-            _engine = PlatformHandler.LinuxHandler(
+            
+            manager.LoadNativeLibrary();
+            
+            _engine = PlatformHandler.UnixHandler(
                 () => GrammarApi.sol_CreateGrammarEngine8(null),
                 () => GrammarApi.sol_CreateGrammarEngineW(null));
-        }
-
-        public GrammarEngine(IntPtr engine)
-        {
-            _libraryManager.LoadNativeLibrary();
-            _engine = engine;
+            
             Initialized = true;
-        }
 
-        public GrammarEngine(string dictionaryPath)
+            _log = loggerFactory?.CreateLogger<GrammarEngine>();
+        }
+        
+        public GrammarEngine(string dictionaryPath, ILoggerFactory loggerFactory = null) 
+            : this(loggerFactory)
         {
-            _libraryManager.LoadNativeLibrary();
-            _engine = PlatformHandler.LinuxHandler(
-                () => GrammarApi.sol_CreateGrammarEngine8(null),
-                () => GrammarApi.sol_CreateGrammarEngineW(null));
             LoadDictionary(dictionaryPath);
         }
 
@@ -69,7 +62,7 @@ namespace GrammarEngineApi
 
         public void LoadDictionary(string dictionaryPath)
         {
-            _log.Info($"Loading dictionary from {dictionaryPath}");
+            _log?.LogInformation($"Loading dictionary from {dictionaryPath}");
 
             string dir = Path.GetDirectoryName(dictionaryPath);
             if (string.IsNullOrEmpty(dir) || !Directory.Exists(dir))
@@ -89,7 +82,7 @@ namespace GrammarEngineApi
             //    throw new InvalidOperationException("Lemmatizer database not found!");
             //}
 
-            var result = PlatformHandler.LinuxHandler(
+            var result = PlatformHandler.UnixHandler(
                 () => GrammarApi.sol_LoadDictionary8(_engine, GetUtf8Bytes(dictionaryPath)),
                 () => GrammarApi.sol_LoadDictionaryW(_engine, dictionaryPath));
 
@@ -108,12 +101,12 @@ namespace GrammarEngineApi
 
             Initialized = true;
 
-            _log.Info("Loaded dictionary.");
+            _log?.LogInformation("Loaded dictionary.");
         }
 
         private void WarnAndThrow(string message)
         {
-            _log.Warn(message);
+            _log?.LogWarning(message);
             throw new InvalidOperationException(message);
         }
 
@@ -131,7 +124,7 @@ namespace GrammarEngineApi
 
         public AnalysisResults AnalyzeMorphology(string phrase, Languages language, MorphologyFlags flags, int constraints)
         {
-            var hPack = PlatformHandler.LinuxHandler(
+            var hPack = PlatformHandler.UnixHandler(
                 () => GrammarApi.sol_MorphologyAnalysis8(_engine, GetUtf8Bytes(phrase), flags, 0, constraints, (int)language),
                 () => GrammarApi.sol_MorphologyAnalysis(_engine, phrase, flags, 0, constraints, (int)language));
             var res = new AnalysisResults(this, hPack);
@@ -150,7 +143,7 @@ namespace GrammarEngineApi
 
         public AnalysisResults AnalyzeSyntax(string phrase, Languages language, MorphologyFlags morphFlags, SyntaxFlags syntaxFlags, int constraints)
         {
-            var hPack = PlatformHandler.LinuxHandler(
+            var hPack = PlatformHandler.UnixHandler(
                 () => GrammarApi.sol_SyntaxAnalysis8(_engine, GetUtf8Bytes(phrase), morphFlags, syntaxFlags, constraints, (int)language),
                 () => GrammarApi.sol_SyntaxAnalysis(_engine, phrase, morphFlags, syntaxFlags, constraints, (int)language));
             var res = new AnalysisResults(this, hPack);
@@ -170,7 +163,9 @@ namespace GrammarEngineApi
         /// </remarks>
         public string[] TokenizeSentence(string text, Languages language)
         {
-            var hTokens = GrammarApi.sol_TokenizeW(_engine, text, (int)language);
+            var hTokens = PlatformHandler.UnixHandler(
+                () => GrammarApi.sol_Tokenize8(_engine, GetUtf8Bytes(text), (int)language),
+                () => GrammarApi.sol_TokenizeW(_engine, text, (int)language));
 
             string[] tokens = null;
             var maxWordLen = GrammarApi.sol_MaxLexemLen(_engine) + 1;
@@ -180,12 +175,11 @@ namespace GrammarEngineApi
                 var ntoken = GrammarApi.sol_CountStrings(hTokens);
                 tokens = new string[ntoken];
 
-                var buffer = new StringBuilder(maxWordLen);
                 for (var i = 0; i < ntoken; ++i)
                 {
-                    buffer.Length = 0;
-                    GrammarApi.sol_GetStringW(hTokens, i, buffer);
-                    tokens[i] = buffer.ToString();
+                    tokens[i] = PlatformHandler.GetNativeString(
+                        ptr => GrammarApi.sol_GetString8(hTokens, i, ptr),
+                        builder => GrammarApi.sol_GetStringW(hTokens, i, builder));
                 }
 
                 GrammarApi.sol_DeleteStrings(hTokens);
@@ -201,7 +195,9 @@ namespace GrammarEngineApi
         /// </summary>
         public string TokenizeWithSeparator(string text, Languages language, char separator = '|')
         {
-            var hTokens = GrammarApi.sol_TokenizeW(_engine, text, (int)language);
+            var hTokens = PlatformHandler.UnixHandler(
+                () => GrammarApi.sol_Tokenize8(_engine, GetUtf8Bytes(text), (int)language),
+                () => GrammarApi.sol_TokenizeW(_engine, text, (int)language));
             if (hTokens == IntPtr.Zero)
             {
                 return string.Empty;
@@ -211,14 +207,15 @@ namespace GrammarEngineApi
             int maxWordLen = GrammarApi.sol_MaxLexemLen(_engine) + 1;
             int ntoken = GrammarApi.sol_CountStrings(hTokens);
             
-            var buffer = new StringBuilder(maxWordLen);
             for (var i = 0; i < ntoken; ++i)
             {
-                buffer.Length = 0;
-                GrammarApi.sol_GetStringW(hTokens, i, buffer);
-                result.Append(buffer.ToString()).Append(separator);
+                result.Append(PlatformHandler.GetNativeString(
+                        ptr => GrammarApi.sol_GetString8(hTokens, i, ptr),
+                        builder => GrammarApi.sol_GetStringW(hTokens, i, builder)))
+                    .Append(separator);
             }
 
+            // Remove the last separator
             result.Length--;
             GrammarApi.sol_DeleteStrings(hTokens);
 
@@ -227,7 +224,9 @@ namespace GrammarEngineApi
 
         public List<string> SplitSentences(string input)
         {
-            var broker = GrammarApi.sol_CreateSentenceBrokerMemW(_engine, input, (int)Languages.RUSSIAN_LANGUAGE);
+            var broker = PlatformHandler.UnixHandler(
+                () => GrammarApi.sol_CreateSentenceBrokerMem8(_engine, GetUtf8Bytes(input), (int)Languages.RUSSIAN_LANGUAGE),
+                () => GrammarApi.sol_CreateSentenceBrokerMemW(_engine, input, (int)Languages.RUSSIAN_LANGUAGE));
             var result = new List<string>();
 
             int len;
@@ -235,9 +234,10 @@ namespace GrammarEngineApi
             {
                 if (len > 0)
                 {
-                    var b = new StringBuilder(len + 2);
-                    GrammarApi.sol_GetFetchedSentence(broker, b);
-                    result.Add(b.ToString());
+                    result.Add(PlatformHandler.GetNativeString(
+                        ptr => GrammarApi.sol_GetFetchedSentence8(broker, ptr),
+                        builder => GrammarApi.sol_GetFetchedSentence(broker, builder),
+                        len + 2));
                 }
             }
 
@@ -255,7 +255,10 @@ namespace GrammarEngineApi
         /// <returns>Text file segmenter.</returns>
         public TextFileSegmenter CreateTextFileSegmenter(string filePath, bool isUtf8, Languages language)
         {
-            var h = GrammarApi.sol_CreateSentenceBroker(GetEngineHandle(), filePath, isUtf8 ? "utf-8" : "unicode", (int)language);
+            var h = PlatformHandler.UnixHandler(
+                () => GrammarApi.sol_CreateSentenceBroker8(GetEngineHandle(), GetUtf8Bytes(filePath), GetUtf8Bytes(isUtf8 ? "utf-8" : "unicode"), (int)language),
+                () => GrammarApi.sol_CreateSentenceBroker(GetEngineHandle(), filePath, isUtf8 ? "utf-8" : "unicode", (int)language));
+            
             if (h == IntPtr.Zero)
             {
                 throw new InvalidOperationException("Failed to create the segmenter!");
@@ -275,14 +278,14 @@ namespace GrammarEngineApi
 
         public int FindEntry(string entryName, int partOfSpeech)
         {
-            return PlatformHandler.LinuxHandler(
+            return PlatformHandler.UnixHandler(
                 () => GrammarApi.sol_FindEntry8(_engine, GetUtf8Bytes(entryName), partOfSpeech, -1),
                 () => GrammarApi.sol_FindEntry(_engine, entryName, partOfSpeech, -1));
         }
 
         public int FindPhrase(string phraseText, bool caseSensitive)
         {
-            return PlatformHandler.LinuxHandler(
+            return PlatformHandler.UnixHandler(
                 () => GrammarApi.sol_FindPhrase8(_engine, GetUtf8Bytes(phraseText), caseSensitive ? 1 : 0),
                 () => GrammarApi.sol_FindPhrase(_engine, phraseText, caseSensitive ? 1 : 0));
         }
@@ -326,14 +329,14 @@ namespace GrammarEngineApi
 
         public int FindCoord(string coordName)
         {
-            return PlatformHandler.LinuxHandler(
+            return PlatformHandler.UnixHandler(
                 () => GrammarApi.sol_FindEnum8(_engine, GetUtf8Bytes(coordName)),
                 () => GrammarApi.sol_FindEnum(_engine, coordName));
         }
 
         public int FindState(int coordId, string stateName)
         {
-            return PlatformHandler.LinuxHandler(
+            return PlatformHandler.UnixHandler(
                 () => GrammarApi.sol_FindEnumState8(_engine, coordId, GetUtf8Bytes(stateName)),
                 () => GrammarApi.sol_FindEnumState(_engine, coordId, stateName));
         }
@@ -371,21 +374,21 @@ namespace GrammarEngineApi
 
         public int FindPartOfSpeech(string partOfSpeechName)
         {
-            return PlatformHandler.LinuxHandler(
+            return PlatformHandler.UnixHandler(
                 () => GrammarApi.sol_FindClass8(_engine, GetUtf8Bytes(partOfSpeechName)),
                 () => GrammarApi.sol_FindClass(_engine, partOfSpeechName));
         }
 
         public int FindTag(string tagName)
         {
-            return PlatformHandler.LinuxHandler(
+            return PlatformHandler.UnixHandler(
                 () => throw new InvalidOperationException("Linux is not supported for this operation."),
                 () => GrammarApi.sol_FindTagW(GetEngineHandle(), tagName));
         }
 
         public int FindTagValue(int tagId, string valueName)
         {
-            return PlatformHandler.LinuxHandler(
+            return PlatformHandler.UnixHandler(
                 () => throw new InvalidOperationException("Linux is not supported for this operation."),
                 () => GrammarApi.sol_FindTagValueW(GetEngineHandle(), tagId, valueName));
         }
@@ -396,7 +399,7 @@ namespace GrammarEngineApi
 
         public ProjectionResults FindWordForms(string wordform)
         {
-            var hList = PlatformHandler.LinuxHandler(
+            var hList = PlatformHandler.UnixHandler(
                 () => GrammarApi.sol_ProjectWord8(_engine, GetUtf8Bytes(wordform), 0),
                 () => GrammarApi.sol_ProjectWord(_engine, wordform, 0));
             return new ProjectionResults(this, hList);
@@ -404,7 +407,7 @@ namespace GrammarEngineApi
 
         public ProjectionResults ProjectMisspelledWord(string word, int nmaxmiss)
         {
-            var hList = PlatformHandler.LinuxHandler(
+            var hList = PlatformHandler.UnixHandler(
                 () => GrammarApi.sol_ProjectMisspelledWord8(_engine, GetUtf8Bytes(word), 0, nmaxmiss),
                 () => GrammarApi.sol_ProjectMisspelledWord(_engine, word, 0, nmaxmiss));
             
@@ -549,25 +552,26 @@ namespace GrammarEngineApi
 
         #region Misc
 
-        public string NormalizePhrase(AnalysisResults linkages)
-        {
-            var wchar_ptr = GrammarApi.sol_NormalizePhraseW(_engine, linkages.GetHandle());
-
-            if (wchar_ptr == (IntPtr)null)
-            {
-                return "";
-            }
-
-            var res = Marshal.PtrToStringUni(wchar_ptr);
-            GrammarApi.sol_Free(_engine, wchar_ptr);
-            return res;
-        }
-
-
-        public string RestoreCasing(int entryId, string word)
-        {
-            return GrammarApi.sol_RestoreCasingFX(_engine, word, entryId);
-        }
+        // TODO: Add Unix support if methods are needed.
+        // public string NormalizePhrase(AnalysisResults linkages)
+        // {
+        //     var wchar_ptr = GrammarApi.sol_NormalizePhraseW(_engine, linkages.GetHandle());
+        //
+        //     if (wchar_ptr == (IntPtr)null)
+        //     {
+        //         return "";
+        //     }
+        //
+        //     var res = Marshal.PtrToStringUni(wchar_ptr);
+        //     GrammarApi.sol_Free(_engine, wchar_ptr);
+        //     return res;
+        // }
+        //
+        //
+        // public string RestoreCasing(int entryId, string word)
+        // {
+        //     return GrammarApi.sol_RestoreCasingFX(_engine, word, entryId);
+        // }
 
         #endregion
 
@@ -599,7 +603,7 @@ namespace GrammarEngineApi
 
         public string GetLastError()
         {
-            return PlatformHandler.LinuxHandler(
+            return PlatformHandler.UnixHandler(
                 () =>
                 {
                     int len = GrammarApi.sol_GetErrorLen8(_engine);
