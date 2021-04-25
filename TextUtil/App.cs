@@ -30,8 +30,8 @@ namespace TextUtil
         public void Test()
         {
             var engine = new GrammarEngine("/Users/oleg/Projects/GrammarEngine/bin/macos/dictionary/x64/dictionary.xml", _loggerFactory);
-            var tokens = engine.TokenizeSentence("Мы если суп, а ели шумели.", Languages.RUSSIAN_LANGUAGE);
-            var morph = engine.AnalyzeMorphology("Мы если суп, а ели шумели.", Languages.RUSSIAN_LANGUAGE, MorphologyFlags.SOL_GREN_MODEL | MorphologyFlags.SOL_GREN_MODEL_ONLY);
+            var tokens = engine.TokenizeSentence("Мы ели суп, а ели шумели.", Languages.RUSSIAN_LANGUAGE);
+            var morph = engine.AnalyzeMorphology("Ели шумели.", Languages.RUSSIAN_LANGUAGE, MorphologyFlags.SOL_GREN_MODEL | MorphologyFlags.SOL_GREN_MODEL_ONLY);
         }
         
         
